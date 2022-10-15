@@ -1,7 +1,17 @@
 # requirements
+python3.7 (create a virtual env with python 3.7)
 
+# windows
+pip install requirements.txt (windows)
+# Mac
 pip install pillow
 pip install earthengine-api --upgrade
+pip install pandas
+pip install geopandas
+pip install rasterio
+pip install pqkmeans
+pip install pillow
+
 ### to store numpy arrays in the database
 pip install django-ndarrayfield
 

@@ -1,0 +1,16 @@
+django
+wheels/GDAL-3.4.2-cp37-cp37m-win_amd64.whl
+wheels/rasterio-1.2.10-cp37-cp37m-win_amd64.whl
+wheels/Fiona-1.8.21-cp37-cp37m-win_amd64.whl
+wheels/pyproj-2.6.1.post1-cp37-cp37m-win_amd64.whl
+wheels/Rtree-1.0.0-cp37-cp37m-win_amd64.whl
+wheels/matplotlib-2.2.2-cp37-cp37m-win_amd64.whl
+geopandas
+scikit_learn
+pqkmeans
+pandas
+earthengine-api
+pyshp
+numpy
+# pillow
+# django-ndarrayfield (to store numpy arrays)
