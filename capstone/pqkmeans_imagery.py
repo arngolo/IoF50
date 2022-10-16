@@ -1,10 +1,8 @@
 import numpy as np
-# import matplotlib.pyplot as plt
 import rasterio
 import pandas as pd
 import time
 import pqkmeans
-
 
 def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     print(metadata)
@@ -17,11 +15,7 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
         band = np.ma.masked_values(bands_array[i], 0)
 
         ###Based on previous failures, the author recommends to use arrays instead of data from pandas in order to have (input values, ndimension):
-
-
         bands["band_" + str(i+1)] = band[band==band] 
-
-    #data = pd.DataFrame.from_dict(data)
 
     #for calculations using algorithms we have to drop NaN values. previous step!!!!
     t2=time.perf_counter()
@@ -68,17 +62,6 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     im = Result.values
     im = np.reshape(Result.values, (band.shape[0],  band.shape[1] ))
     ##### After, Save
-
-    # proj: "utm", "latlong, "EPSG:32618", "longlat +ellps=WGS84 +datum=WGS84", "aea"
-##        if (proj == "longlat") or ((proj == "latlong")):
-##                proj = proj + " +ellps=" + ellps + " +datum=" +datum
-##        elif proj == "EPSG":
-##                proj = proj + ": " + epsg_value
-    # if proj == "EPSG":
-    #         proj = proj + ": " + epsg_value + " +ellps=" + ellps + " +datum=" +datum
-    # else:
-    #         proj = proj + " +ellps=" + ellps + " +datum=" +datum
-    # print("CRS is: +proj = " + proj)
 
     PQKMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = 1, nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
     PQKMean_output.write(im, 1)

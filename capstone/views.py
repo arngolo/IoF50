@@ -1,19 +1,20 @@
-from operator import imatmul
+# from operator import imatmul
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Imagery
-import json
+import ee, os, json
 import numpy as np
-import ee
-from rasterio import features, mask
-import json
+# from rasterio import features, mask
 from django.views.decorators.csrf import csrf_exempt
-import geopandas as gpd
+# import geopandas as gpd
 from affine import Affine
 from .pqkmeans_imagery import PQKMeansGen
 from .shapefile_to_json import shp_to_json
-import os
-import glob
+
+# Earth Engine authentication
+authentication = json.load(open(os.getcwd() + '/authentication.json'))
+ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"], os.getcwd() + "/" + authentication["private_key"])
+ee.Initialize(ee_credentials)
 
 # Create your views here.
 def index(request):
@@ -63,11 +64,6 @@ def pixels_app(request):
           image_update.image_name=image_name
           print(fetched_data.get("image_name"))
           image_update.save()
-
-          service_account = 'cs50w-arngolo@arngolo.iam.gserviceaccount.com'
-          private_key = os.getcwd() + '/capstone/private-key.json'
-          credentials = ee.ServiceAccountCredentials(service_account, private_key)
-          ee.Initialize(credentials)
 
           # get shapefile path (from media /media/file) 
           # try:
@@ -140,8 +136,6 @@ def pixels_app(request):
           num_subdim=1
           Ks=256
           sample_size = 500
-          ellps = "WGS84"
-          datum = "WGS84"
 
           PQKMeansGen(bands, output, k, num_subdim, Ks, sample_size, meta_out)
 
