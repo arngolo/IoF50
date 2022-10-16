@@ -7,7 +7,7 @@
     <!-- {% csrf_token %} -->
     <form action="{% url 'pixels' %}" method="post" enctype="multipart/form-data">
         <div class="form-group" >
-            <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".json, .shp" placeholder="vector location">
+            <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="vector location" multiple>
         </div>
         <div class="form-group">
             <input class="btn btn-primary" type="submit" value="Submit">

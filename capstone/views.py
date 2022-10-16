@@ -35,20 +35,37 @@ def pixels_app(request):
      
      elif request.method == "POST":
           image_update = Imagery.objects.get(pk=1)
-          shape_file = request.FILES['ShapefileLocation']
-          if shape_file:
+          shape_files = request.FILES.getlist('ShapefileLocation')
+
+          if shape_files:
                # remove the existing shapefile from media 
                media_files = os.getcwd() + '/media/media_files'
-               # if "\\" in media_files:
-               #      media_files = media_files.replace("\\", "/")
                if os.path.exists(media_files):
                     if len(os.listdir(media_files)) != 0:
                          for f in os.listdir(media_files):
                               os.remove(os.path.join(media_files, f))
 
-               print("shapefile: ", shape_file)
-               # add new shapefile
-               image_update.shapefile_path = shape_file
+               # # add new shapefile
+               for file in shape_files:
+                    if ".shp" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_shp = file
+                    elif ".dbf" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_dbf = file
+                    elif ".shx" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_shx = file
+                    elif ".sbx" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_sbx = file
+                    elif ".sbn" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_sbn = file
+                    elif ".prj" in str(file):
+                         print(str(file))    
+                         image_update.shapefile_path_prj = file
+                    
                image_update.save()
                
                database = Imagery.objects.all()
@@ -65,29 +82,15 @@ def pixels_app(request):
           image_update.save()
 
           # get shapefile path (from media /media/file) 
-          # try:
-          vector_path = image_update.shapefile_path.path
+          vector_path = image_update.shapefile_path_shp.path
           if "\\" in vector_path:
                vector_path = vector_path.replace("\\", "/")
 
-          # vector = gpd.read_file(vector_path)
-          # # except:
-          # #      print("shapefile path not stored in database, shapefile is not stored in media files OR something else went wrong")
-          
-          # # change geometry to the same geometry as the image UTM zone north !
-          # vector = vector.geometry.to_crs("EPSG:32633")
-          # print(vector)
+          # print(vector_path)
 
           # from shapefile to json
           data = shp_to_json(vector_path)
-          print(data)
-
-          # Get list of geometries for all features in vector file
-          # geom = [shapes for shapes in vector.geometry]
-
-          # # Read corresponding vector from json
-          # Patrice_Lumumba_json = open('Patrice_Lumumba.json')
-          # data = json.load(Patrice_Lumumba_json)
+          # print(data)
 
           coordinates_list = data['geometry']['coordinates']
           geometry_json = ee.Geometry.MultiPolygon(coordinates_list, None, False)
@@ -141,8 +144,6 @@ def pixels_app(request):
           sample_size = 500
 
           PQKMeansGen(bands, output, k, num_subdim, Ks, sample_size, meta_out)
-
-
 
           ## expose updated data again to the url
           database = Imagery.objects.all()

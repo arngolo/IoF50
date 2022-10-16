@@ -11,12 +11,8 @@ pip install pandas
 pip install rasterio
 pip install pqkmeans
 
-### to store numpy arrays in the database
-pip install django-ndarrayfield
-
 # Note:
-We can upload a shapefile to GEE in the assets section (under users/username location).
-at least `.shp, .dbf, .shx and .prj extension files are required. 
+To upload a shapefile at least `.shp, .dbf, .shx and .prj extension files are required. Select them at once when uploading the vector data.
 
 # GEE python authentication
 
@@ -30,4 +26,5 @@ Create and download a JSON private key file for the service account.
 - Place the private key in the root location of this project.
 - In the `authentication.json` file, add the service account and the private key file name.
 
+# Usage
 

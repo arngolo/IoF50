@@ -1,5 +1,5 @@
 .DS_Store
 db.sqlite3
 private-key.json
-output_images/
-media_files/
+media/output_images/
+media/media_files/
