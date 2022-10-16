@@ -37,20 +37,19 @@ def pixels_app(request):
           image_update = Imagery.objects.get(pk=1)
           shape_file = request.FILES['ShapefileLocation']
           if shape_file:
+               # remove the existing shapefile from media 
+               media_files = os.getcwd() + '/media/media_files'
+               # if "\\" in media_files:
+               #      media_files = media_files.replace("\\", "/")
+               if os.path.exists(media_files):
+                    if len(os.listdir(media_files)) != 0:
+                         for f in os.listdir(media_files):
+                              os.remove(os.path.join(media_files, f))
 
-               # remove existing shapefile 
-                    ## its path from database 
-               image_update.shapefile_path = ""
-                    ## the actual file from media
-               media_files = os.getcwd() + '/media/files'
-               if len(os.listdir(media_files)) != 0:
-                    for f in os.listdir(media_files):
-                         os.remove(os.path.join(media_files, f))
-
+               print("shapefile: ", shape_file)
                # add new shapefile
                image_update.shapefile_path = shape_file
                image_update.save()
-               print("shapefile: ", shape_file)
                
                database = Imagery.objects.all()
                images = [image for image in database.all()]
@@ -131,7 +130,11 @@ def pixels_app(request):
           'transform': affine_transform}
 
           # imput for pqkmeans
-          output = os.getcwd() + '/media/output_images' + "/test_out.tif"
+          output = os.getcwd() + '/media/output_images'
+          if not os.path.exists(output):
+               os.mkdir(output)
+          output = output + "/test_out.tif"
+          
           k=3
           num_subdim=1
           Ks=256
