@@ -2,25 +2,21 @@
 {% load static %}
 
 {% block body %}
-<h1>cs50x capstone project</h1>
-<div>
-    <!-- {% csrf_token %} -->
-    <form action="{% url 'pixels' %}" method="post" enctype="multipart/form-data">
-        <div class="form-group" >
-            <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="vector location" multiple>
-        </div>
-        <div class="form-group">
-            <input class="btn btn-primary" type="submit" value="Submit">
-        </div>
-    </form>
+
+<div class="content">
+    <div id="panel" class="sticky">
+      <p>Imagery on the fly - cs50x capstone project</p>
+    </div>
+    <div id="map"></div>
+    <div id="control_panel">
+        <form action="{% url 'pixels' %}" method="post" enctype="multipart/form-data">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="vector location" multiple>
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
         <button id="get_remote_image" type="button" class="btn btn-link">get remote image</button>
+    </div>
 </div>
-<!-- make the map here -->
-<!-- <div id="image"></div> -->
 
-{% endblock %}
-
-{% block script %}
-    <script src="{% static 'capstone/ee_api_js.js' %}"></script>
-    <script src="{% static 'capstone/index.js' %}"></script>
 {% endblock %}

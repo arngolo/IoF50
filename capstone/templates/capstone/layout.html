@@ -5,12 +5,19 @@
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <!-- <link href="{% static 'capstone/styles.css' %}" rel="stylesheet"> -->
+        <link href="{% static 'capstone/leaflet.css' %}" rel="stylesheet">
+        <link href="{% static 'capstone/styles.css' %}" rel="stylesheet">
+        
         {% block script %}
+        <script src="{% static 'capstone/leaflet.js' %}"></script>
+        <script src="{% static 'capstone/ee_api_js.js' %}"></script>
+        <script src="{% static 'capstone/index.js' %}"></script>
         {% endblock %}
     </head>
+    
     <body>        
-            {% block body %}
-            {% endblock %}
+        {% block body %}
+        {% endblock %}
     </body>
+
 </html>
