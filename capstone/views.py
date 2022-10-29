@@ -10,11 +10,20 @@ from django.views.decorators.csrf import csrf_exempt
 from affine import Affine
 from .pqkmeans_imagery import PQKMeansGen
 from .shapefile_to_json import shp_to_json
+from .upload_to_server import upload_objects_to_gcp
+import gdal2tiles
+
 
 # Earth Engine authentication
 authentication = json.load(open(os.getcwd() + '/authentication.json'))
-ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"], os.getcwd() + "/" + authentication["private_key"])
+private_key = os.getcwd() + "/" + authentication["private_key"]
+ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"], private_key)
 ee.Initialize(ee_credentials)
+
+# google cloud storage authentication
+import os
+from google.cloud import storage
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = private_key
 
 # Create your views here.
 def index(request):
@@ -136,7 +145,7 @@ def pixels_app(request):
           output = os.getcwd() + '/media/output_images'
           if not os.path.exists(output):
                os.mkdir(output)
-          output = output + "/test_out.tif"
+          output = output + "/map.tif"
           
           k=3
           num_subdim=1
@@ -144,6 +153,12 @@ def pixels_app(request):
           sample_size = 500
 
           PQKMeansGen(bands, output, k, num_subdim, Ks, sample_size, meta_out)
+
+          # Generate maptiles
+          gdal2tiles.generate_tiles(output, authentication["maptiles_directory"], zoom='0-15', srcnodtata = 0)
+
+          # upload maptiles to google cloud storage
+          upload_objects_to_gcp(authentication["bucket_name"], authentication["maptiles_directory"])
 
           ## expose updated data again to the url
           database = Imagery.objects.all()

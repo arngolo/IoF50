@@ -3,3 +3,5 @@ db.sqlite3
 private-key.json
 media/output_images/
 media/media_files/
+maptiles
+pqcode.npy
