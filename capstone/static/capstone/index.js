@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var globalLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'OpenStreetMap'
       }).addTo(map),
-      localLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/maptiles/{z}/{x}/{y}.png');
+      localLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/maptiles/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
   
       var groupLayer = L.layerGroup([globalLayer, localLayer]);
   
