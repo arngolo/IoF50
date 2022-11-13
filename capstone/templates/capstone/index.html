@@ -9,13 +9,27 @@
     </div>
     <div id="map"></div>
     <div id="control_panel">
+        <div id="load_vector">
+            <p>Load area</p>
+        </div>
         <form action="{% url 'pixels' %}" method="post" enctype="multipart/form-data">
             <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="vector location" multiple>
+                <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
         <button id="get_remote_image" type="button" class="btn btn-link">get remote image</button>
+        <div id="spectral">
+            <p>Get Spectral Index</p>
+        </div>
+        <button id="get_nd" type="button" class="btn btn-link">Normalized difference</button>
+        <button id="get_mei" type="button" class="btn btn-link">MEI</button>
+        <button id="get_vigs" type="button" class="btn btn-link">VIGS</button>
+        <div id="classif">
+            <p>Image Classification</p>
+        </div>
+        <button id="get_ndvi" type="button" class="btn btn-link">k-means</button>
+        <button id="get_ndvi" type="button" class="btn btn-link">pqk-means</button>
     </div>
 </div>
 

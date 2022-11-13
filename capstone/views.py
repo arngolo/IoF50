@@ -10,8 +10,12 @@ from django.views.decorators.csrf import csrf_exempt
 from affine import Affine
 from .pqkmeans_imagery import PQKMeansGen
 from .shapefile_to_json import shp_to_json
+from osgeo import gdal
 from .upload_to_server import upload_objects_to_gcp
 import gdal2tiles
+from .spectral_tools import normalized_difference, vigs_index, moisture_enhanced_index, save_spectral_index, get_metadata, get_bands
+from pyproj import Proj
+
 
 
 # Earth Engine authentication
@@ -21,8 +25,6 @@ ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"],
 ee.Initialize(ee_credentials)
 
 # google cloud storage authentication
-import os
-from google.cloud import storage
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = private_key
 
 # Create your views here.
@@ -36,6 +38,7 @@ def index(request):
 
 @csrf_exempt
 def pixels_app(request):
+     project_directory = os.getcwd()
      if request.method == "GET":
           database = Imagery.objects.all()
           images = [image for image in database.all()] ## all images
@@ -48,11 +51,11 @@ def pixels_app(request):
 
           if shape_files:
                # remove the existing shapefile from media 
-               media_files = os.getcwd() + '/media/media_files'
-               if os.path.exists(media_files):
-                    if len(os.listdir(media_files)) != 0:
-                         for f in os.listdir(media_files):
-                              os.remove(os.path.join(media_files, f))
+               shapefiles = project_directory + '/media/shapefiles'
+               if os.path.exists(shapefiles):
+                    if len(os.listdir(shapefiles)) != 0:
+                         for f in os.listdir(shapefiles):
+                              os.remove(os.path.join(shapefiles, f))
 
                # # add new shapefile
                for file in shape_files:
@@ -105,60 +108,101 @@ def pixels_app(request):
           geometry_json = ee.Geometry.MultiPolygon(coordinates_list, None, False)
 
           # get image, clip to the extent of the vector and mask its pixel values
-          image = ee.Image("LANDSAT/LC09/C02/T1/LC09_182066_20220611").select(['B2', 'B3', 'B4'])
+          image = ee.Image(image_name).select(['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B10'])
+
           # cliping
           mask = image.clip(geometry_json).mask()
           ## masking
           masked_image = image.updateMask(mask)
 
-          # pixels to numpy arrays:
-          band_arrays = masked_image.sampleRectangle(region=geometry_json, defaultValue=0)
-          b2 = band_arrays.get("B2")
-          np_arr_b2 = np.array(b2.getInfo())
+          # get masked image bounds
+          bounds = image.select("B2").mask().gt(0).selfMask().addBands(1).reduceToVectors(reducer= ee.Reducer.first(), geometry = geometry_json, scale= 30, geometryType= "bb")
 
-          b3 = band_arrays.get("B3")
-          np_arr_b3 = np.array(b3.getInfo())
-
-          b4 = band_arrays.get("B4")
-          np_arr_b4 = np.array(b4.getInfo())
-
-          bands = [np_arr_b2, np_arr_b3, np_arr_b4]
+          # pixels to numpy arrays: to sample the pixels from the satellite image (number of pixels must be <= 262144):
+          band_arrays = masked_image.sampleRectangle(region=bounds, defaultValue=0)
+          mission = "landsat"
+          
+          bands = get_bands(mission, band_arrays)
           print(bands)
 
-          # image metadata
+          # IMAGE METADATA
           image_info=image.getInfo()
           crs = image_info["bands"][0]["crs"]
           crs_transform = image_info["bands"][0]["crs_transform"]
-          # affine transformation is in the following format: (scale, shear, translation, scale, shear, translation)
-          affine_transform = Affine(crs_transform[0], crs_transform[1], crs_transform[2], crs_transform[3], crs_transform[4], crs_transform[5])
-
-          meta_out = {'driver': 'GTiff',
-          'dtype': 'float32',
-          'nodata': -3.402823e+38,
-          'width': np_arr_b2.shape[1],
-          'height': np_arr_b2.shape[0],
-          'count': 3,
-          'crs': crs,
-          'transform': affine_transform}
+          # get top(north), left(west) bounds of the masked image
+          bbox = bounds.getInfo()["features"][0]["geometry"]["coordinates"][0]
+          west = bbox[0][0]
+          north = bbox[2][1]
+          # convert from decimal to UTM
+          myProj = Proj(crs)
+          left,top = myProj(west, north)
+          print("left bound: ", left, "\n", "top bound: ", top)
+          # affine transformation in the following format: (scale, shear, translation, scale, shear, translation)
+          affine_transform = Affine(crs_transform[0], crs_transform[1], left, crs_transform[3], crs_transform[4], top)
+          # custom metadata
+          metadata = get_metadata(bands["blue"], crs, affine_transform)
 
           # imput for pqkmeans
-          output = os.getcwd() + '/media/output_images'
+          output = project_directory + '/media/output_images'
           if not os.path.exists(output):
                os.mkdir(output)
           output = output + "/map.tif"
-          
+
+          # if normalized_index:
+          #      # name = get_name()
+          #      normalized_index = normalized_difference(bands["red"], bands["nir"])
+          #      # metadata = get_metadata(np_arr_b1)
+          #      # save normalized_index index
+          #      output = project_directory + '/media/output_images/normalized_index.tif'
+          #      color_text = "get color text from form"
+          #      save_spectral_index(normalized_index, output, metadata)
+
+          #      # grayscale to color ramp
+          #      CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + output.split(".")[0] + "_colored.tif"
+          #      os.system(CMD)
+          #      output = output.split(".")[0] + "_colored.tif"
+               
+          # elif vigs:
+          #      name = "vigs"
+          #      vigs = vigs_index(bands["green"], bands["red"], bands["nir"], bands["swir1"], bands["swir2"])
+          #      # save vigs index
+          #      output = project_directory + '/media/output_images/vigs.tif'
+          #      color_text = "get color text from form"
+          #      save_spectral_index(vigs, output, metadata)
+
+          #      # grayscale to color ramp
+          #      CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + output.split(".")[0] + "_colored.tif"
+          #      os.system(CMD)
+          #      output = output.split(".")[0] + "_colored.tif"
+
+          # elif mei:
+          #      name = "mei"
+          #      mei = moisture_enhanced_index(bands["coastal_aerosol"], bands["green"], bands["nir"], bands["swir1"])
+          #      # save mei index
+          #      output = project_directory + '/media/output_images/mei.tif'
+          #      color_text = "get color text from form"
+          #      save_spectral_index(mei, output, metadata)
+
+          # elif pqkmeans:
+          name = "lulc"
           k=3
           num_subdim=1
           Ks=256
           sample_size = 500
+          color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
+          PQKMeansGen([bands["blue"], bands["green"], bands["red"]], output, k, num_subdim, Ks, sample_size, metadata)
 
-          PQKMeansGen(bands, output, k, num_subdim, Ks, sample_size, meta_out)
+          # grayscale to color ramp
+          CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
+          os.system(CMD)
 
           # Generate maptiles
-          gdal2tiles.generate_tiles(output, authentication["maptiles_directory"], zoom='0-15', srcnodtata = 0)
+          input = output.split(".")[0] + "_colored.tif"
+          # tiles_output = output.split(".")[0] + "_tiles"
+          gdal2tiles.generate_tiles(input, project_directory + "/media/output_images/" + name, zoom='0-15', srcnodtata = 0)
 
           # upload maptiles to google cloud storage
-          upload_objects_to_gcp(authentication["bucket_name"], authentication["maptiles_directory"])
+          upload_objects_to_gcp(project_directory, authentication["bucket_name"], name)
 
           ## expose updated data again to the url
           database = Imagery.objects.all()

@@ -1,6 +1,5 @@
 {
     "service_account":"cs50w-arngolo@arngolo.iam.gserviceaccount.com",
     "private_key":"private-key.json",
-    "bucket_name":"beyond_rgb",
-    "maptiles_directory":"maptiles"
+    "bucket_name":"beyond_rgb"
 }

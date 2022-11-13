@@ -59,11 +59,12 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     Z_Reindexed = Z.set_index(data2.index)
     data["Label"] = Z_Reindexed["Labels"]
     Result = pd.to_numeric(data["Label"], downcast = "float" )
-    im = Result.values
-    im = np.reshape(Result.values, (band.shape[0],  band.shape[1] ))
+    im = Result.values + 1
+    im = im.astype(metadata["dtype"])
+    im = np.reshape(im, (band.shape[0],  band.shape[1] ))
     ##### After, Save
 
-    PQKMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = 1, nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
+    PQKMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = metadata["count"], nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
     PQKMean_output.write(im, 1)
     PQKMean_output.close()
     writing_end=time.perf_counter()

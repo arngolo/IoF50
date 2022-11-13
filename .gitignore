@@ -2,6 +2,5 @@
 db.sqlite3
 private-key.json
 media/output_images/
-media/media_files/
-maptiles
+media/shapefiles/
 pqcode.npy

@@ -9,3 +9,4 @@ earthengine-api
 pyshp
 gdal2tiles
 google-cloud-storage
+pyproj

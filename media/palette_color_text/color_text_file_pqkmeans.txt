@@ -1,0 +1,7 @@
+nv 0 0 0 0
+1 blue 250
+2 yellow 250
+3 green 250
+4 orange 250
+5 red 250
+6 250 250 250 0

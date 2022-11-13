@@ -12,6 +12,7 @@ pip install rasterio
 pip install pqkmeans
 pip install gdal2tiles
 pip install google-cloud-storage
+pip install pyproj
 
 # Note:
 To upload a shapefile at least `.shp, .dbf, .shx and .prj extension files are required. Select them at once when uploading the vector data.

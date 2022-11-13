@@ -49,3 +49,7 @@ html,body {
   background: rgb(0, 19, 23);
   position: relative;
 }
+
+#classif, #spectral, #load_vector {
+  color: white;
+}
