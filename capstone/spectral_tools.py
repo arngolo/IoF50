@@ -1,4 +1,5 @@
 from sklearn import preprocessing
+import rasterio
 import numpy as np
 
 
@@ -8,7 +9,7 @@ scaler2 = preprocessing.MinMaxScaler(feature_range=(0, 255))
 def normalized_difference(band_a, band_b):
     scaler1.fit_transform(band_a)
     scaler1.fit_transform(band_b)
-    result = band_a.subtract(band_b).divide(band_a.add(band_b))
+    result = (band_a - band_b)/(band_a + band_b)
     return scaler2.fit_transform(result).astype("uint8")
 
 def moisture_enhanced_index(coastal_aerosol, green, nir, swir1):
@@ -16,7 +17,7 @@ def moisture_enhanced_index(coastal_aerosol, green, nir, swir1):
     scaler1.fit_transform(green)
     scaler1.fit_transform(nir)
     scaler1.fit_transform(swir1)
-    result = (green.subtract(nir).divide(green.add(nir))).add(green.subtract(swir1).divide(green.add(swir1))).add((coastal_aerosol.subtract(green).divide(coastal_aerosol.add(green))).multiply(3))
+    result = ((green - nir)/(green + nir)) + ((green - swir1)/(green + swir1)) + ((coastal_aerosol - green)/(coastal_aerosol + green)) * 3
     return scaler2.fit_transform(result).astype("uint8")
 
 def vigs_index(green, red, nir, swir1, swir2):
@@ -25,7 +26,7 @@ def vigs_index(green, red, nir, swir1, swir2):
     scaler1.fit_transform(nir)
     scaler1.fit_transform(swir1)
     scaler1.fit_transform(swir2)
-    result = (green.subtract(red).divide(green.add(red))).add((nir.subtract(red).divide(nir.add(red))).multiply(0.5)).add((nir.subtract(swir1).divide(nir.add(swir1))).multiply(1.5)).add((nir.subtract(swir2).divide(nir.add(swir2))).multiply(1.5))
+    result = ((green - red)/(green + red)) + ((nir - red)/(nir + red)) * 0.5 + ((nir - swir1)/(nir + swir1)) * 1.5 + ((nir - swir2)/(nir + swir2)) * 1.5
     return scaler2.fit_transform(result).astype("uint8")
 
 def save_spectral_index(index, output, meta_out):

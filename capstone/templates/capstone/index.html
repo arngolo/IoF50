@@ -9,6 +9,7 @@
     </div>
     <div id="map"></div>
     <div id="control_panel">
+
         <div id="load_vector">
             <p>Load area</p>
         </div>
@@ -18,18 +19,65 @@
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
+
+        <div id="load_image">
+            <p>Load landsat image</p>
+        </div>
+        <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="text" name="SatelliteImage" placeholder="Landsat ID">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
         <button id="get_remote_image" type="button" class="btn btn-link">get remote image</button>
+
         <div id="spectral">
             <p>Get Spectral Index</p>
         </div>
+        <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="text" name="NormalizedDifferenceName" placeholder="spectral index name">
+                <input class="form-control col-sm-4" autofocus type="text" name="NormalizedDifferenceBands" placeholder="2 comma separated bands (b1, b2)">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
         <button id="get_nd" type="button" class="btn btn-link">Normalized difference</button>
+
+        <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="checkbox" name="mei" value="mei">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
         <button id="get_mei" type="button" class="btn btn-link">MEI</button>
+
+        <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="checkbox" name="vigs" value="vigs">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
         <button id="get_vigs" type="button" class="btn btn-link">VIGS</button>
+
         <div id="classif">
             <p>Image Classification</p>
         </div>
-        <button id="get_ndvi" type="button" class="btn btn-link">k-means</button>
-        <button id="get_ndvi" type="button" class="btn btn-link">pqk-means</button>
+
+        <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="checkbox" name="pqk-means" value="pqk-means">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
+        <button id="get_pqkmeans" type="button" class="btn btn-link">pqk-means</button>
+
+        <!-- <form action="{% url 'pixels' %}" method="post">
+            <div class="form-group" display="inline-block">
+                <input class="form-control col-sm-4" autofocus type="checkbox" name="k-means" value="k-means">
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </div>
+        </form>
+        <button id="get_kmeans" type="button" class="btn btn-link">k-means</button> -->
     </div>
 </div>
 

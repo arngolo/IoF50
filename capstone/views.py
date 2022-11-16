@@ -1,6 +1,7 @@
 # from operator import imatmul
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 from .models import Imagery
 import ee, os, json
 import numpy as np
@@ -47,15 +48,16 @@ def pixels_app(request):
      
      elif request.method == "POST":
           image_update = Imagery.objects.get(pk=1)
-          shape_files = request.FILES.getlist('ShapefileLocation')
 
-          if shape_files:
+          if request.FILES.getlist('ShapefileLocation'):
+               shape_files = request.FILES.getlist('ShapefileLocation')
+
                # remove the existing shapefile from media 
-               shapefiles = project_directory + '/media/shapefiles'
-               if os.path.exists(shapefiles):
-                    if len(os.listdir(shapefiles)) != 0:
-                         for f in os.listdir(shapefiles):
-                              os.remove(os.path.join(shapefiles, f))
+               shapefiles_folder = project_directory + '/media/shapefiles'
+               if os.path.exists(shapefiles_folder):
+                    if len(os.listdir(shapefiles_folder)) != 0:
+                         for f in os.listdir(shapefiles_folder):
+                              os.remove(os.path.join(shapefiles_folder, f))
 
                # # add new shapefile
                for file in shape_files:
@@ -77,28 +79,54 @@ def pixels_app(request):
                     elif ".prj" in str(file):
                          print(str(file))    
                          image_update.shapefile_path_prj = file
-                    
-               image_update.save()
-               
-               database = Imagery.objects.all()
-               images = [image for image in database.all()]
-               return JsonResponse([image.serialize() for image in images], safe=False)
+
+          # if the following condition is not true, returns False
+          elif request.POST.get('SatelliteImage', False):
+               sat_image = request.POST['SatelliteImage']
+               image_update.image_name = sat_image
+
+          elif request.POST.get('NormalizedDifferenceName', False) and request.POST.get('NormalizedDifferenceBands', False):
+               norm_diff_name = request.POST['NormalizedDifferenceName']
+               norm_diff_bands = request.POST['NormalizedDifferenceBands']
+               image_update.normalized_difference = [norm_diff_name, norm_diff_bands]
+
+          elif request.POST.get('mei', False):
+               mei = request.POST['mei']
+               image_update.mei = mei
+
+          elif request.POST.get('vigs', False):
+               vigs = request.POST['vigs']
+               image_update.vigs = vigs
+
+          image_update.save()
+          return HttpResponseRedirect(reverse("index"))
+
 
      elif request.method == "PUT":
           # for this project, the database needs to have at least 1 element. index function creates 1 by default.
           image_update = Imagery.objects.get(pk=1)
           fetched_data = json.loads(request.body) #gets json data from the webpage (body as refered in javascript code). javascript uses "PUT" method of fetch to update the webpage contant
           image_name = fetched_data.get("image_name")
-          image_update.image_name=image_name
-          print(fetched_data.get("image_name"))
-          image_update.save()
+          # norm_difference = fetched_data.get("normalized_difference")
+          mei = fetched_data.get("mei")
+          vigs = fetched_data.get("vigs")
+          pqkmeans = fetched_data.get("pqkmeans")
+          if image_name:
+               image_update.image_name=image_name
+               image_update.save()
+          else:
+               image_name = image_update.image_name
+          print("\n","image name: ",image_name)
+          # print("norm difference",norm_difference)
+          print("\n","mei: ",mei)
+          print("\n","vigs: ",vigs)
+          print("\n","pqkmeans: ",pqkmeans)
+          
 
           # get shapefile path (from media /media/file) 
           vector_path = image_update.shapefile_path_shp.path
           if "\\" in vector_path:
                vector_path = vector_path.replace("\\", "/")
-
-          # print(vector_path)
 
           # from shapefile to json
           data = shp_to_json(vector_path)
@@ -148,49 +176,43 @@ def pixels_app(request):
                os.mkdir(output)
           output = output + "/map.tif"
 
-          # if normalized_index:
+          # if norm_difference:
           #      # name = get_name()
           #      normalized_index = normalized_difference(bands["red"], bands["nir"])
           #      # metadata = get_metadata(np_arr_b1)
           #      # save normalized_index index
           #      output = project_directory + '/media/output_images/normalized_index.tif'
-          #      color_text = "get color text from form"
+          ##      color_text = "get color text from form"
+          #      color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
           #      save_spectral_index(normalized_index, output, metadata)
-
-          #      # grayscale to color ramp
-          #      CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + output.split(".")[0] + "_colored.tif"
-          #      os.system(CMD)
-          #      output = output.split(".")[0] + "_colored.tif"
                
           # elif vigs:
-          #      name = "vigs"
-          #      vigs = vigs_index(bands["green"], bands["red"], bands["nir"], bands["swir1"], bands["swir2"])
-          #      # save vigs index
-          #      output = project_directory + '/media/output_images/vigs.tif'
-          #      color_text = "get color text from form"
-          #      save_spectral_index(vigs, output, metadata)
+          if vigs:
+               name = "vigs"
+               vigs = vigs_index(bands["green"], bands["red"], bands["nir"], bands["swir1"], bands["swir2"])
+               # save vigs index
+               output = project_directory + '/media/output_images/vigs.tif'
+               # color_text = "get color text from form"
+               color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+               save_spectral_index(vigs, output, metadata)
 
-          #      # grayscale to color ramp
-          #      CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + output.split(".")[0] + "_colored.tif"
-          #      os.system(CMD)
-          #      output = output.split(".")[0] + "_colored.tif"
+          elif mei:
+               name = "mei"
+               mei = moisture_enhanced_index(bands["coastal_aerosol"], bands["green"], bands["nir"], bands["swir1"])
+               # save mei index
+               output = project_directory + '/media/output_images/mei.tif'
+               # color_text = "get color text from form"
+               color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+               save_spectral_index(mei, output, metadata)
 
-          # elif mei:
-          #      name = "mei"
-          #      mei = moisture_enhanced_index(bands["coastal_aerosol"], bands["green"], bands["nir"], bands["swir1"])
-          #      # save mei index
-          #      output = project_directory + '/media/output_images/mei.tif'
-          #      color_text = "get color text from form"
-          #      save_spectral_index(mei, output, metadata)
-
-          # elif pqkmeans:
-          name = "lulc"
-          k=3
-          num_subdim=1
-          Ks=256
-          sample_size = 500
-          color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
-          PQKMeansGen([bands["blue"], bands["green"], bands["red"]], output, k, num_subdim, Ks, sample_size, metadata)
+          elif pqkmeans:
+               name = "lulc"
+               k=3
+               num_subdim=1
+               Ks=256
+               sample_size = 500
+               color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
+               PQKMeansGen([bands["blue"], bands["green"], bands["red"]], output, k, num_subdim, Ks, sample_size, metadata)
 
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
@@ -204,7 +226,4 @@ def pixels_app(request):
           # upload maptiles to google cloud storage
           upload_objects_to_gcp(project_directory, authentication["bucket_name"], name)
 
-          ## expose updated data again to the url
-          database = Imagery.objects.all()
-          images = [image for image in database.all()]
-          return JsonResponse([image.serialize() for image in images], safe=False)
+          return HttpResponseRedirect(reverse("index"))
