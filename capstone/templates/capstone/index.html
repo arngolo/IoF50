@@ -36,12 +36,12 @@
         </div>
         <form action="{% url 'pixels' %}" method="post">
             <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="text" name="NormalizedDifferenceName" placeholder="spectral index name">
-                <input class="form-control col-sm-4" autofocus type="text" name="NormalizedDifferenceBands" placeholder="2 comma separated bands (b1, b2)">
+                <input class="form-control col-sm-4" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
+                <input class="form-control col-sm-4" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
-        <button id="get_nd" type="button" class="btn btn-link">Normalized difference</button>
+        <button id="get_spectral_index" type="button" class="btn btn-link">Spectral Index</button>
 
         <form action="{% url 'pixels' %}" method="post">
             <div class="form-group" display="inline-block">

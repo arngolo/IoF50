@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var globalLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'OpenStreetMap'
   }).addTo(map),
-  localLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
+  localLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/ndvi/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
 
   var groupLayer = L.layerGroup([globalLayer, localLayer]);
 
@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
   .then(image => {
 
     const image_name = image[0].image_name;
-    // const normalized_difference = image[0].normalized_difference;
+    const spectral_index_name = image[0].spectral_index_name;
+    const spectral_index_equation = image[0].spectral_index_equation;
     const mei = image[0].mei;
     const vigs = image[0].vigs;
     const pqkmeans = image[0].pqkmeans;
@@ -24,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(mei);
     console.log(vigs);
     console.log(pqkmeans);
+    console.log(spectral_index_name);
+    console.log(spectral_index_equation);
     if (image_name != "") {
       document.querySelector('#get_remote_image').addEventListener('click', () => get_pixels(image_name));
     }
@@ -36,9 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pqkmeans != "") {
       document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans));
     }
-    // else if (normalized_difference != "") {
-    //   document.querySelector('#get_nd').addEventListener('click', () => get_normalized_difference(normalizedDifference));
-    // }
+    if (spectral_index_name != "") {
+      document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation));
+    }
   })
 
 });
@@ -78,11 +81,12 @@ function get_pqkmeans(pqkmeans) {
     })
   });
 }
-// function get_normalized_difference(normalized_difference) {
-//   fetch(`/pixels`, {
-//     method: 'PUT',
-//     body: JSON.stringify({
-//       normalized_difference:normalized_difference,
-//     })
-//   });
-// }
+function get_spectral_index(spectral_index_name, spectral_index_equation) {
+  fetch(`/pixels`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      spectral_index_name:spectral_index_name,
+      spectral_index_equation:spectral_index_equation,
+    })
+  });
+}

@@ -5,7 +5,8 @@ from django.db import models
 class Imagery(models.Model):
     image_id = models.AutoField(db_column='image_id', primary_key=True)
     image_name = models.CharField(max_length=200, default="")
-    normalized_difference = models.TextField(db_column='normalized_difference', default="[]")
+    spectral_index_name = models.TextField(db_column='spectral_index_name', default="")
+    spectral_index_equation = models.TextField(db_column='spectral_index_equation', default="")
     mei = models.TextField(db_column='mei', default="mei")
     vigs = models.TextField(db_column='vigs', default="vigs")
     pqkmeans = models.TextField(db_column='pqkmeans', default="pqkmeans")
@@ -18,4 +19,4 @@ class Imagery(models.Model):
     # image_details = models.CharField(max_length=300, default="[]")
 
     def serialize(self):
-        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans}
+        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation}

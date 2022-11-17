@@ -7,25 +7,25 @@ scaler1 = preprocessing.MinMaxScaler(feature_range=(0.0, 1.0))
 scaler2 = preprocessing.MinMaxScaler(feature_range=(0, 255))
 
 def normalized_difference(band_a, band_b):
-    scaler1.fit_transform(band_a)
-    scaler1.fit_transform(band_b)
+    # scaler1.fit_transform(band_a)
+    # scaler1.fit_transform(band_b)
     result = (band_a - band_b)/(band_a + band_b)
     return scaler2.fit_transform(result).astype("uint8")
 
 def moisture_enhanced_index(coastal_aerosol, green, nir, swir1):
-    scaler1.fit_transform(coastal_aerosol)
-    scaler1.fit_transform(green)
-    scaler1.fit_transform(nir)
-    scaler1.fit_transform(swir1)
+    # scaler1.fit_transform(coastal_aerosol)
+    # scaler1.fit_transform(green)
+    # scaler1.fit_transform(nir)
+    # scaler1.fit_transform(swir1)
     result = ((green - nir)/(green + nir)) + ((green - swir1)/(green + swir1)) + ((coastal_aerosol - green)/(coastal_aerosol + green)) * 3
     return scaler2.fit_transform(result).astype("uint8")
 
 def vigs_index(green, red, nir, swir1, swir2):
-    scaler1.fit_transform(green)
-    scaler1.fit_transform(red)
-    scaler1.fit_transform(nir)
-    scaler1.fit_transform(swir1)
-    scaler1.fit_transform(swir2)
+    # scaler1.fit_transform(green)
+    # scaler1.fit_transform(red)
+    # scaler1.fit_transform(nir)
+    # scaler1.fit_transform(swir1)
+    # scaler1.fit_transform(swir2)
     result = ((green - red)/(green + red)) + ((nir - red)/(nir + red)) * 0.5 + ((nir - swir1)/(nir + swir1)) * 1.5 + ((nir - swir2)/(nir + swir2)) * 1.5
     return scaler2.fit_transform(result).astype("uint8")
 
@@ -46,54 +46,79 @@ def get_metadata(band_array,crs, affine_transform):
           'transform': affine_transform}
     return meta
 
-def get_bands(mission, band_arrays):
+def get_bands(mission, band_arrays, spectral_index_equation = None):
     bands = {}
-    if mission == "landsat":
-        coastal_aerosol = band_arrays.get("B1")
-        coastal_aerosol = np.array(coastal_aerosol.getInfo())
-        bands["coastal_aerosol"] = coastal_aerosol
+    B1 = band_arrays.get("B1")
+    B1 = np.array(B1.getInfo())
+    scaler1.fit_transform(B1)
+    bands["B1"] = B1
 
-        blue = band_arrays.get("B2")
-        blue = np.array(blue.getInfo())
-        bands["blue"] = blue
+    B2 = band_arrays.get("B2")
+    B2 = np.array(B2.getInfo())
+    scaler1.fit_transform(B2)
+    bands["B2"] = B2
 
-        green = band_arrays.get("B3")
-        green = np.array(green.getInfo())
-        bands["green"] = green
+    B3 = band_arrays.get("B3")
+    B3 = np.array(B3.getInfo())
+    scaler1.fit_transform(B3)
+    bands["B3"] = B3
 
-        red = band_arrays.get("B4")
-        red = np.array(red.getInfo())
-        bands["red"] = red
+    B4 = band_arrays.get("B4")
+    B4 = np.array(B4.getInfo())
+    scaler1.fit_transform(B4)
+    bands["B4"] = B4
 
-        nir = band_arrays.get("B5")
-        nir = np.array(nir.getInfo())
-        bands["nir"] = nir
+    B5 = band_arrays.get("B5")
+    B5 = np.array(B5.getInfo())
+    scaler1.fit_transform(B5)
+    bands["B5"] = B5
 
-        swir1 = band_arrays.get("B6")
-        swir1 = np.array(swir1.getInfo())
-        bands["swir1"] = swir1
+    B6 = band_arrays.get("B6")
+    B6 = np.array(B6.getInfo())
+    scaler1.fit_transform(B6)
+    bands["B6"] = B6
 
-        swir2 = band_arrays.get("B7")
-        swir2 = np.array(swir2.getInfo())
-        bands["swir2"] = swir2
+    B7 = band_arrays.get("B7")
+    B7 = np.array(B7.getInfo())
+    scaler1.fit_transform(B7)
+    bands["B7"] = B7
 
-        # pan = band_arrays.get("B8")
-        # pan = np.array(pan.getInfo())
-        # bands["pan"] = pan
+    B8 = band_arrays.get("B8")
+    B8 = np.array(B8.getInfo())
+    scaler1.fit_transform(B8)
+    bands["B8"] = B8
 
-        
-        # clouds = band_arrays.get("B9")
-        # clouds = np.array(clouds.getInfo())
-        # bands["clouds"] = clouds
+    if mission == "sentinel":
+        B8A = band_arrays.get("B8A")
+        B8A = np.array(B8A.getInfo())
+        scaler1.fit_transform(B8A)
+        bands["B8A"] = B8A
 
-        
-        # tir1= band_arrays.get("B10")
-        # tir1 = np.array(tir1.getInfo())
-        # bands["tir2"] = tir1
+    B9 = band_arrays.get("B9")
+    B9 = np.array(B9.getInfo())
+    scaler1.fit_transform(B9)
+    bands["B9"] = B9
 
-        
-        # tir2 = band_arrays.get("B11")
-        # tir2 = np.array(tir2.getInfo())
-        # bands["tir2"] = tir2
+    B10 = band_arrays.get("B10")
+    B10 = np.array(B10.getInfo())
+    scaler1.fit_transform(B10)
+    bands["B10"] = B10
+
+    B11 = band_arrays.get("B11")
+    B11 = np.array(B11.getInfo())
+    scaler1.fit_transform(B11)
+    bands["B11"] = B11
+
+    if mission == "sentinel":
+        B12 = band_arrays.get("B12")
+        B12 = np.array(B12.getInfo())
+        scaler1.fit_transform(B12)
+        bands["B12"] = B12
+
+    # return spectral index
+    if spectral_index_equation:
+        print(spectral_index_equation)
+        spectral_index = eval(spectral_index_equation)
+        return scaler2.fit_transform(spectral_index).astype("uint8")
 
     return bands

@@ -85,10 +85,11 @@ def pixels_app(request):
                sat_image = request.POST['SatelliteImage']
                image_update.image_name = sat_image
 
-          elif request.POST.get('NormalizedDifferenceName', False) and request.POST.get('NormalizedDifferenceBands', False):
-               norm_diff_name = request.POST['NormalizedDifferenceName']
-               norm_diff_bands = request.POST['NormalizedDifferenceBands']
-               image_update.normalized_difference = [norm_diff_name, norm_diff_bands]
+          elif request.POST.get('SpectralIndexName', False) and request.POST.get('SpectralIndexEquation', False):
+               spectral_index_name = request.POST['SpectralIndexName']
+               spectral_index_equation = request.POST['SpectralIndexEquation']
+               image_update.spectral_index_name = spectral_index_name
+               image_update.spectral_index_equation = spectral_index_equation
 
           elif request.POST.get('mei', False):
                mei = request.POST['mei']
@@ -107,7 +108,8 @@ def pixels_app(request):
           image_update = Imagery.objects.get(pk=1)
           fetched_data = json.loads(request.body) #gets json data from the webpage (body as refered in javascript code). javascript uses "PUT" method of fetch to update the webpage contant
           image_name = fetched_data.get("image_name")
-          # norm_difference = fetched_data.get("normalized_difference")
+          spectral_index_name = fetched_data.get("spectral_index_name")
+          spectral_index_equation = fetched_data.get("spectral_index_equation")
           mei = fetched_data.get("mei")
           vigs = fetched_data.get("vigs")
           pqkmeans = fetched_data.get("pqkmeans")
@@ -117,7 +119,8 @@ def pixels_app(request):
           else:
                image_name = image_update.image_name
           print("\n","image name: ",image_name)
-          # print("norm difference",norm_difference)
+          print("\n","spectral index name: ",spectral_index_name)
+          print("\n","spectral index equation: ",spectral_index_equation)
           print("\n","mei: ",mei)
           print("\n","vigs: ",vigs)
           print("\n","pqkmeans: ",pqkmeans)
@@ -136,7 +139,7 @@ def pixels_app(request):
           geometry_json = ee.Geometry.MultiPolygon(coordinates_list, None, False)
 
           # get image, clip to the extent of the vector and mask its pixel values
-          image = ee.Image(image_name).select(['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B10'])
+          image = ee.Image(image_name)
 
           # cliping
           mask = image.clip(geometry_json).mask()
@@ -168,42 +171,46 @@ def pixels_app(request):
           # affine transformation in the following format: (scale, shear, translation, scale, shear, translation)
           affine_transform = Affine(crs_transform[0], crs_transform[1], left, crs_transform[3], crs_transform[4], top)
           # custom metadata
-          metadata = get_metadata(bands["blue"], crs, affine_transform)
+          metadata = get_metadata(bands["B2"], crs, affine_transform)
 
-          # imput for pqkmeans
+          # images output directory
           output = project_directory + '/media/output_images'
           if not os.path.exists(output):
                os.mkdir(output)
-          output = output + "/map.tif"
 
-          # if norm_difference:
-          #      # name = get_name()
-          #      normalized_index = normalized_difference(bands["red"], bands["nir"])
-          #      # metadata = get_metadata(np_arr_b1)
-          #      # save normalized_index index
-          #      output = project_directory + '/media/output_images/normalized_index.tif'
-          ##      color_text = "get color text from form"
-          #      color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
-          #      save_spectral_index(normalized_index, output, metadata)
-               
-          # elif vigs:
-          if vigs:
-               name = "vigs"
-               vigs = vigs_index(bands["green"], bands["red"], bands["nir"], bands["swir1"], bands["swir2"])
-               # save vigs index
-               output = project_directory + '/media/output_images/vigs.tif'
-               # color_text = "get color text from form"
+          if spectral_index_name and spectral_index_equation:
+               name = spectral_index_name
+               #get_bands function also gets spectral index
+               spectral_index = get_bands(mission, band_arrays, spectral_index_equation)
+               # save normalized_index index
+               output = project_directory + '/media/output_images/' + spectral_index_name + '.tif'
+          #      color_text = "get color text from form"
                color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
-               save_spectral_index(vigs, output, metadata)
+               save_spectral_index(spectral_index, output, metadata)
+               
+          elif vigs:
+               if mission == "landsat":
+                    name = "vigs"
+                    vigs = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
+                    # save vigs index
+                    output = project_directory + '/media/output_images/vigs.tif'
+                    # color_text = "get color text from form"
+                    color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+                    save_spectral_index(vigs, output, metadata)
+               else:
+                    pass
 
           elif mei:
-               name = "mei"
-               mei = moisture_enhanced_index(bands["coastal_aerosol"], bands["green"], bands["nir"], bands["swir1"])
-               # save mei index
-               output = project_directory + '/media/output_images/mei.tif'
-               # color_text = "get color text from form"
-               color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
-               save_spectral_index(mei, output, metadata)
+               if mission == "landsat":
+                    name = "mei"
+                    mei = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
+                    # save mei index
+                    output = project_directory + '/media/output_images/mei.tif'
+                    # color_text = "get color text from form"
+                    color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+                    save_spectral_index(mei, output, metadata)
+               else:
+                    pass
 
           elif pqkmeans:
                name = "lulc"
@@ -211,8 +218,9 @@ def pixels_app(request):
                num_subdim=1
                Ks=256
                sample_size = 500
+               output = project_directory + '/media/output_images/map.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
-               PQKMeansGen([bands["blue"], bands["green"], bands["red"]], output, k, num_subdim, Ks, sample_size, metadata)
+               PQKMeansGen([bands["B2"], bands["B3"], bands["B4"]], output, k, num_subdim, Ks, sample_size, metadata)
 
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
