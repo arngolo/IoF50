@@ -102,23 +102,32 @@ def pixels_app(request):
           image_update.save()
           return HttpResponseRedirect(reverse("index"))
 
-
      elif request.method == "PUT":
           # for this project, the database needs to have at least 1 element. index function creates 1 by default.
           image_update = Imagery.objects.get(pk=1)
           fetched_data = json.loads(request.body) #gets json data from the webpage (body as refered in javascript code). javascript uses "PUT" method of fetch to update the webpage contant
+
           image_name = fetched_data.get("image_name")
-          spectral_index_name = fetched_data.get("spectral_index_name")
-          spectral_index_equation = fetched_data.get("spectral_index_equation")
-          mei = fetched_data.get("mei")
-          vigs = fetched_data.get("vigs")
-          pqkmeans = fetched_data.get("pqkmeans")
           if image_name:
                image_update.image_name=image_name
                image_update.save()
           else:
                image_name = image_update.image_name
           print("\n","image name: ",image_name)
+
+          #satellite mission
+          if image_name.startswith("LANDSAT"):
+               mission = 'landsat'
+          elif image_name.startswith("COPERNICUS"):
+               mission = 'sentinel'
+          print("\n","Satellite Mission: ", mission, "\n")
+
+          spectral_index_name = fetched_data.get("spectral_index_name")
+          spectral_index_equation = fetched_data.get("spectral_index_equation")
+          mei = fetched_data.get("mei")
+          vigs = fetched_data.get("vigs")
+          pqkmeans = fetched_data.get("pqkmeans")
+
           print("\n","spectral index name: ",spectral_index_name)
           print("\n","spectral index equation: ",spectral_index_equation)
           print("\n","mei: ",mei)
@@ -151,10 +160,9 @@ def pixels_app(request):
 
           # pixels to numpy arrays: to sample the pixels from the satellite image (number of pixels must be <= 262144):
           band_arrays = masked_image.sampleRectangle(region=bounds, defaultValue=0)
-          mission = "landsat"
           
           bands = get_bands(mission, band_arrays)
-          print(bands)
+          # print(bands)
 
           # IMAGE METADATA
           image_info=image.getInfo()
@@ -170,6 +178,10 @@ def pixels_app(request):
           print("left bound: ", left, "\n", "top bound: ", top)
           # affine transformation in the following format: (scale, shear, translation, scale, shear, translation)
           affine_transform = Affine(crs_transform[0], crs_transform[1], left, crs_transform[3], crs_transform[4], top)
+          if mission == "sentinel":
+               affine_transform = Affine(10, crs_transform[1], left, crs_transform[3], -10, top)
+
+          print("Affine Transformation: ", affine_transform)
           # custom metadata
           metadata = get_metadata(bands["B2"], crs, affine_transform)
 

@@ -15,21 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
   .then(response => response.json())
   .then(image => {
 
-    const image_name = image[0].image_name;
     const spectral_index_name = image[0].spectral_index_name;
     const spectral_index_equation = image[0].spectral_index_equation;
     const mei = image[0].mei;
     const vigs = image[0].vigs;
     const pqkmeans = image[0].pqkmeans;
-    console.log(image_name);
+
     console.log(mei);
     console.log(vigs);
     console.log(pqkmeans);
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
-    if (image_name != "") {
-      document.querySelector('#get_remote_image').addEventListener('click', () => get_pixels(image_name));
-    }
+
     if (mei != "") {
       document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei));
     }
@@ -45,15 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
   })
 
 });
-
-function get_pixels(image_name) {
-  fetch(`/pixels`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      image_name:image_name,
-    })
-  });
-}
 
 function get_mei(mei) {
   fetch(`/pixels`, {

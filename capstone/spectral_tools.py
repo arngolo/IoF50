@@ -7,25 +7,14 @@ scaler1 = preprocessing.MinMaxScaler(feature_range=(0.0, 1.0))
 scaler2 = preprocessing.MinMaxScaler(feature_range=(0, 255))
 
 def normalized_difference(band_a, band_b):
-    # scaler1.fit_transform(band_a)
-    # scaler1.fit_transform(band_b)
     result = (band_a - band_b)/(band_a + band_b)
     return scaler2.fit_transform(result).astype("uint8")
 
 def moisture_enhanced_index(coastal_aerosol, green, nir, swir1):
-    # scaler1.fit_transform(coastal_aerosol)
-    # scaler1.fit_transform(green)
-    # scaler1.fit_transform(nir)
-    # scaler1.fit_transform(swir1)
     result = ((green - nir)/(green + nir)) + ((green - swir1)/(green + swir1)) + ((coastal_aerosol - green)/(coastal_aerosol + green)) * 3
     return scaler2.fit_transform(result).astype("uint8")
 
 def vigs_index(green, red, nir, swir1, swir2):
-    # scaler1.fit_transform(green)
-    # scaler1.fit_transform(red)
-    # scaler1.fit_transform(nir)
-    # scaler1.fit_transform(swir1)
-    # scaler1.fit_transform(swir2)
     result = ((green - red)/(green + red)) + ((nir - red)/(nir + red)) * 0.5 + ((nir - swir1)/(nir + swir1)) * 1.5 + ((nir - swir2)/(nir + swir2)) * 1.5
     return scaler2.fit_transform(result).astype("uint8")
 
@@ -52,6 +41,7 @@ def get_bands(mission, band_arrays, spectral_index_equation = None):
     B1 = np.array(B1.getInfo())
     scaler1.fit_transform(B1)
     bands["B1"] = B1
+    print("region rectangle shape: ", B1.shape)
 
     B2 = band_arrays.get("B2")
     B2 = np.array(B2.getInfo())
@@ -99,10 +89,11 @@ def get_bands(mission, band_arrays, spectral_index_equation = None):
     scaler1.fit_transform(B9)
     bands["B9"] = B9
 
-    B10 = band_arrays.get("B10")
-    B10 = np.array(B10.getInfo())
-    scaler1.fit_transform(B10)
-    bands["B10"] = B10
+    if mission == "landsat":
+        B10 = band_arrays.get("B10")
+        B10 = np.array(B10.getInfo())
+        scaler1.fit_transform(B10)
+        bands["B10"] = B10
 
     B11 = band_arrays.get("B11")
     B11 = np.array(B11.getInfo())

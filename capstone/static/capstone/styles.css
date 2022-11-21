@@ -50,6 +50,6 @@ html,body {
   position: relative;
 }
 
-#classif, #spectral, #load_vector {
+#classif, #spectral, #load_vector, #load_image {
   color: white;
 }
