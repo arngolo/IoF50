@@ -134,7 +134,6 @@ def pixels_app(request):
           print("\n","vigs: ",vigs)
           print("\n","pqkmeans: ",pqkmeans)
           
-
           # get shapefile path (from media /media/file) 
           vector_path = image_update.shapefile_path_shp.path
           if "\\" in vector_path:
