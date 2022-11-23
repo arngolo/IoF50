@@ -21,12 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
   ndviLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/ndvi/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
   meiLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/mei/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
   vigsLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/vigs/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
-  lulcLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
+  lulcPqkmeansLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc_pqkmeans/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
+  lulcKmeansLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc_kmeans/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
 
   // Create the map with basemaps and custom layers
   var map = L.map('map', {layers: [openStreetMap]}).setView([0, 0], 3);
   var basemaps = {"Open Street Map": openStreetMap, "Open Topo Map": openTopoMap, "Imagery": satelliteImage, "Night Light": night_light}
-  var overlaymaps = {"ndvi": ndviLayer, "mei": meiLayer, "vigs": vigsLayer, "lulc": lulcLayer}
+  var overlaymaps = {"ndvi": ndviLayer, "mei": meiLayer, "vigs": vigsLayer, "lulc pqkmeans": lulcPqkmeansLayer, "lulc kmeans": lulcKmeansLayer}
 
   L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
@@ -39,10 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const mei = image[0].mei;
     const vigs = image[0].vigs;
     const pqkmeans = image[0].pqkmeans;
+    const kmeans = image[0].kmeans;
 
     console.log(mei);
     console.log(vigs);
     console.log(pqkmeans);
+    console.log(kmeans);
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
 
@@ -54,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (pqkmeans != "") {
       document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans));
+    }
+    if (kmeans != "") {
+      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans));
     }
     if (spectral_index_name != "") {
       document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation));
@@ -88,6 +94,16 @@ function get_pqkmeans(pqkmeans) {
     })
   });
 }
+
+function get_kmeans(kmeans) {
+  fetch(`/pixels`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      kmeans:kmeans,
+    })
+  });
+}
+
 function get_spectral_index(spectral_index_name, spectral_index_equation) {
   fetch(`/pixels`, {
     method: 'PUT',

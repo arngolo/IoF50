@@ -9,7 +9,7 @@ import numpy as np
 from django.views.decorators.csrf import csrf_exempt
 # import geopandas as gpd
 from affine import Affine
-from .pqkmeans_imagery import PQKMeansGen
+from .classifier import PQKMeansGen, KMeansGen
 from .shapefile_to_json import shp_to_json
 from osgeo import gdal
 from .upload_to_server import upload_objects_to_gcp
@@ -127,12 +127,15 @@ def pixels_app(request):
           mei = fetched_data.get("mei")
           vigs = fetched_data.get("vigs")
           pqkmeans = fetched_data.get("pqkmeans")
+          kmeans = fetched_data.get("kmeans")
+
 
           print("\n","spectral index name: ",spectral_index_name)
           print("\n","spectral index equation: ",spectral_index_equation)
           print("\n","mei: ",mei)
           print("\n","vigs: ",vigs)
           print("\n","pqkmeans: ",pqkmeans)
+          print("\n","kmeans: ",kmeans)
           
           # get shapefile path (from media /media/file) 
           vector_path = image_update.shapefile_path_shp.path
@@ -224,14 +227,21 @@ def pixels_app(request):
                     pass
 
           elif pqkmeans:
-               name = "lulc"
+               name = "lulc_pqkmeans"
                k=3
                num_subdim=1
                Ks=256
                sample_size = 500
-               output = project_directory + '/media/output_images/map.tif'
+               output = project_directory + '/media/output_images/map_pqkmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
                PQKMeansGen([bands["B2"], bands["B3"], bands["B4"]], output, k, num_subdim, Ks, sample_size, metadata)
+
+          elif kmeans:
+               name = "lulc_kmeans"
+               k=3
+               output = project_directory + '/media/output_images/map_kmeans.tif'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
+               KMeansGen([bands["B2"], bands["B3"], bands["B4"]], output, k, metadata)
 
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"

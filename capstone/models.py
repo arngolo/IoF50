@@ -10,6 +10,7 @@ class Imagery(models.Model):
     mei = models.TextField(db_column='mei', default="mei")
     vigs = models.TextField(db_column='vigs', default="vigs")
     pqkmeans = models.TextField(db_column='pqkmeans', default="pqkmeans")
+    kmeans = models.TextField(db_column='kmeans', default="kmeans")
     shapefile_path_shp = models.FileField(upload_to= 'shapefiles', blank=True, null=True)
     shapefile_path_dbf = models.FileField(upload_to= 'shapefiles', blank=True, null=True)
     shapefile_path_sbn = models.FileField(upload_to= 'shapefiles', blank=True, null=True)
@@ -19,4 +20,4 @@ class Imagery(models.Model):
     # image_details = models.CharField(max_length=300, default="[]")
 
     def serialize(self):
-        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation}
+        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "kmeans": self.kmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation}
