@@ -1,7 +1,7 @@
 from sklearn import preprocessing
 import rasterio
 import numpy as np
-
+import os
 
 scaler1 = preprocessing.MinMaxScaler(feature_range=(0.0, 1.0))
 scaler2 = preprocessing.MinMaxScaler(feature_range=(0, 255))
@@ -113,3 +113,24 @@ def get_bands(mission, band_arrays, spectral_index_equation = None):
         return scaler2.fit_transform(spectral_index).astype("uint8")
 
     return bands
+
+def get_band_stack(bands, stack_list_string, project_directory):
+    stack = []
+    stack_list = stack_list_string.split(",")
+    print(stack_list)
+    for i in stack_list:
+        i = i.replace(" ", "")
+        print("band name: ", i)
+        if len(i) < 3 or i == "B8A":
+            print("band length: ", len(i))
+            stack.append(bands[i])
+        else:
+            print("band length: ", len(i))
+            for j in os.listdir(project_directory + '/media/output_images'):
+                if j.endswith('.tif'):
+                    print(j)
+                    if i in j and "colored" not in j:
+                        spectral_index = rasterio.open(project_directory + '/media/output_images/' + j).read(1)
+                        spectral_index = np.ma.masked_values(spectral_index, 0)
+                        stack.append(spectral_index)
+    return stack

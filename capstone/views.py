@@ -14,7 +14,7 @@ from .shapefile_to_json import shp_to_json
 from osgeo import gdal
 from .upload_to_server import upload_objects_to_gcp
 import gdal2tiles
-from .spectral_tools import normalized_difference, vigs_index, moisture_enhanced_index, save_spectral_index, get_metadata, get_bands
+from .spectral_tools import normalized_difference, vigs_index, moisture_enhanced_index, save_spectral_index, get_metadata, get_bands, get_band_stack
 from pyproj import Proj
 
 
@@ -99,6 +99,12 @@ def pixels_app(request):
                vigs = request.POST['vigs']
                image_update.vigs = vigs
 
+          elif request.POST.get('BandStackList', False):
+               band_stack_list = request.POST['BandStackList']
+               image_update.band_stack_list = band_stack_list
+          else:
+               return exit(1)
+
           image_update.save()
           return HttpResponseRedirect(reverse("index"))
 
@@ -128,6 +134,7 @@ def pixels_app(request):
           vigs = fetched_data.get("vigs")
           pqkmeans = fetched_data.get("pqkmeans")
           kmeans = fetched_data.get("kmeans")
+          band_stack_list = fetched_data.get("band_stack_list")
 
 
           print("\n","spectral index name: ",spectral_index_name)
@@ -226,7 +233,7 @@ def pixels_app(request):
                else:
                     pass
 
-          elif pqkmeans:
+          elif pqkmeans and band_stack_list:
                name = "lulc_pqkmeans"
                k=3
                num_subdim=1
@@ -234,15 +241,19 @@ def pixels_app(request):
                sample_size = 500
                output = project_directory + '/media/output_images/map_pqkmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
-               PQKMeansGen([bands["B2"], bands["B3"], bands["B4"]], output, k, num_subdim, Ks, sample_size, metadata)
+               band_stack = get_band_stack(bands, band_stack_list, project_directory)
+               PQKMeansGen(band_stack, output, k, num_subdim, Ks, sample_size, metadata)
 
-          elif kmeans:
+          elif kmeans and band_stack_list:
                name = "lulc_kmeans"
                k=3
                output = project_directory + '/media/output_images/map_kmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
-               KMeansGen([bands["B2"], bands["B3"], bands["B4"]], output, k, metadata)
+               band_stack = get_band_stack(bands, band_stack_list, project_directory)
+               KMeansGen(band_stack, output, k, metadata)
 
+          else:
+               return exit(1)
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
           os.system(CMD)

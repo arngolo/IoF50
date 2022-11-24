@@ -40,42 +40,29 @@
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
-        <button id="get_spectral_index" type="button" class="btn btn-link">Spectral Index</button>
+        <button id="get_spectral_index" type="button" class="btn btn-link">Get Spectral Index</button>
 
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="checkbox" name="mei" value="mei">
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </div>
-        </form>
-        <button id="get_mei" type="button" class="btn btn-link">MEI</button>
+        <button id="get_mei" type="button" class="btn btn-link">Get MEI</button>
 
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="checkbox" name="vigs" value="vigs">
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </div>
-        </form>
-        <button id="get_vigs" type="button" class="btn btn-link">VIGS</button>
+        <button id="get_vigs" type="button" class="btn btn-link">Get VIGS</button>
 
         <div id="classif">
             <p>Image Classification</p>
         </div>
 
+        <div id="stack">
+            <p>Stack Bands</p>
+        </div>
         <form action="{% url 'pixels' %}" method="post">
             <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="checkbox" name="pqk-means" value="pqk-means">
+                <!-- add later a pop-up menu that shows up if the spectral index is not present in local and suggest to create 1 using the get_spectral_index function-->
+                <input class="form-control col-sm-4" autofocus type="text" name="BandStackList" placeholder="list bands and or spectral indices (B1, B2, ndvi)">
                 <input class="btn btn-primary" type="submit" value="Submit">
             </div>
         </form>
+
         <button id="get_pqkmeans" type="button" class="btn btn-link">pqk-means</button>
 
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="checkbox" name="k-means" value="k-means">
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </div>
-        </form>
         <button id="get_kmeans" type="button" class="btn btn-link">k-means</button>
     </div>
 </div>

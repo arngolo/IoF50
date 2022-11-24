@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const vigs = image[0].vigs;
     const pqkmeans = image[0].pqkmeans;
     const kmeans = image[0].kmeans;
+    const band_stack_list = image[0].band_stack_list;
 
     console.log(mei);
     console.log(vigs);
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(kmeans);
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
+    console.log(band_stack_list);
 
     if (mei != "") {
       document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei));
@@ -56,10 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('#get_vigs').addEventListener('click', () => get_vigs(vigs));
     }
     if (pqkmeans != "") {
-      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans));
+      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans, band_stack_list));
     }
     if (kmeans != "") {
-      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans));
+      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list));
     }
     if (spectral_index_name != "") {
       document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation));
@@ -86,20 +88,22 @@ function get_vigs(vigs) {
   });
 }
 
-function get_pqkmeans(pqkmeans) {
+function get_pqkmeans(pqkmeans, band_stack_list) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       pqkmeans:pqkmeans,
+      band_stack_list:band_stack_list,
     })
   });
 }
 
-function get_kmeans(kmeans) {
+function get_kmeans(kmeans, band_stack_list) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       kmeans:kmeans,
+      band_stack_list:band_stack_list,
     })
   });
 }
