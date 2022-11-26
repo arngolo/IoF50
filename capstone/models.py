@@ -18,6 +18,11 @@ class Imagery(models.Model):
     shapefile_path_sbx = models.FileField(upload_to= 'shapefiles', blank=True, null=True)
     shapefile_path_prj = models.FileField(upload_to= 'shapefiles', blank=True, null=True)
     band_stack_list = models.TextField(db_column='band_stack_list', max_length=300, default="")
+    k_value = models.TextField(db_column='k_value', max_length=30, default="3")
+    num_subdimensions = models.TextField(db_column='num_subdimensions', max_length=30, default="1")
+    ks_value = models.TextField(db_column='ks_value', max_length=30, default="256")
+    sample_size = models.TextField(db_column='sample_size', max_length=30, default="500")
+
 
     def serialize(self):
-        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "kmeans": self.kmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation, "band_stack_list": self.band_stack_list}
+        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "kmeans": self.kmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation, "band_stack_list": self.band_stack_list, "k_value":self.k_value, "num_subdimensions":self.num_subdimensions, "ks_value":self.ks_value, "sample_size":self.sample_size}

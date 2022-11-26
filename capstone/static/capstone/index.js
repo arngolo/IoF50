@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const pqkmeans = image[0].pqkmeans;
     const kmeans = image[0].kmeans;
     const band_stack_list = image[0].band_stack_list;
+    const k_value = image[0].k_value;
+    const num_subdimensions = image[0].num_subdimensions;
+    const ks_value = image[0].ks_value;
+    const sample_size = image[0].sample_size;
 
     console.log(mei);
     console.log(vigs);
@@ -50,6 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
     console.log(band_stack_list);
+    console.log(k_value);
+    console.log(num_subdimensions);
+    console.log(ks_value);
+    console.log(sample_size);
 
     if (mei != "") {
       document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei));
@@ -58,10 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('#get_vigs').addEventListener('click', () => get_vigs(vigs));
     }
     if (pqkmeans != "") {
-      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans, band_stack_list));
+      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size));
     }
     if (kmeans != "") {
-      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list));
+      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list, k_value));
     }
     if (spectral_index_name != "") {
       document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation));
@@ -88,22 +96,27 @@ function get_vigs(vigs) {
   });
 }
 
-function get_pqkmeans(pqkmeans, band_stack_list) {
+function get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       pqkmeans:pqkmeans,
       band_stack_list:band_stack_list,
+      k_value:k_value,
+      num_subdimensions:num_subdimensions,
+      ks_value:ks_value,
+      sample_size:sample_size,
     })
   });
 }
 
-function get_kmeans(kmeans, band_stack_list) {
+function get_kmeans(kmeans, band_stack_list, k_value) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       kmeans:kmeans,
       band_stack_list:band_stack_list,
+      k_value:k_value,
     })
   });
 }

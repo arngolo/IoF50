@@ -10,34 +10,51 @@
     <div id="map"></div>
     <div id="control_panel">
 
-        <div id="load_vector">
-            <p>Load area</p>
-        </div>
-        <form action="{% url 'pixels' %}" method="post" enctype="multipart/form-data">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
-                <input class="btn btn-primary" type="submit" value="Submit">
+        <div id="load_vector_image" class="container">
+            <div class="row">
+                <div class="col">
+                    <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
+                        <div class="form-row align-items-center">
+                            <div class="col-auto">
+                                <label for="colFormLabelSm">Load area</label>
+                                <input class="form-control mb-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
+                            </div>
+                            <div class="col-auto">
+                                <input class="btn btn-primary" type="submit" value="Submit">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col">
+                    <form action="{% url 'pixels' %}" class="form row" method="post" id="b">
+                        <div class="form-row align-items-center">
+                            <div class="col-auto">
+                                <label for="colFormLabelSm">Load satellite image</label>
+                                <input class="form-control mb-4" autofocus type="text" name="SatelliteImage" placeholder="Landsat ID">
+                            </div>
+                            <div class="col-auto">
+                                <input class="btn btn-primary" type="submit" value="Submit">
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-
-        <div id="load_image">
-            <p>Load satellite image</p>
         </div>
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="text" name="SatelliteImage" placeholder="Landsat ID">
-                <input class="btn btn-primary" type="submit" value="Submit">
-            </div>
-        </form>
 
         <div id="spectral">
             <p>Get Spectral Index</p>
         </div>
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <input class="form-control col-sm-4" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
-                <input class="form-control col-sm-4" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
-                <input class="btn btn-primary" type="submit" value="Submit">
+        <form id="spectral" action="{% url 'pixels' %}" method="post">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <input class="form-control mb-2" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
+                </div>
+                <div class="col-auto">
+                    <input class="form-control mb-2" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                </div>
+                <div class="col-auto">
+                    <input class="btn btn-primary" type="submit" value="Submit">
+                </div>
             </div>
         </form>
         <button id="get_spectral_index" type="button" class="btn btn-link">Get Spectral Index</button>
@@ -50,14 +67,37 @@
             <p>Image Classification</p>
         </div>
 
-        <div id="stack">
-            <p>Stack Bands</p>
-        </div>
-        <form action="{% url 'pixels' %}" method="post">
-            <div class="form-group" display="inline-block">
-                <!-- add later a pop-up menu that shows up if the spectral index is not present in local and suggest to create 1 using the get_spectral_index function-->
-                <input class="form-control col-sm-4" autofocus type="text" name="BandStackList" placeholder="list bands and or spectral indices (B1, B2, ndvi)">
-                <input class="btn btn-primary" type="submit" value="Submit">
+        <form id="classifier_param" action="{% url 'pixels' %}" method="post">
+            <div class="form-row align-items-center">
+                    <!-- add later a pop-up menu that shows up if the spectral index is not present in local and suggest to create 1 using the get_spectral_index function-->
+                    <div class="col-auto">
+                        <label for="exampleInputEmail1">band list</label>
+                        <input class="form-control mb-2" id="inlineFormInput" type="text" name="BandStackList" placeholder="e.g.: B1, B2, ndvi">
+                    </div>
+                    <div class="col-auto">
+                    <label for="exampleInputEmail1">number of clusters</label>
+                    <input class="form-control mb-2" id="inlineFormInput" type="text" name="KValue" placeholder="k value">
+                    </div>
+                    <div class="col-auto">
+                    <label for="exampleInputEmail1">number of subdimensions (pqk-means)</label>
+                    <input class="form-control mb-2" id="inlineFormInput" type="text" name="NumSubdim">
+                    </div>
+                    <div class="col-auto">
+                        <label for="exampleInputEmail1">Ks value (pqk-means)</label>
+                        <select class="form-control mb-2" id="inlineFormInput" name="Ks">
+                            <option value="4">2bits</option>
+                            <option value="16">4bits</option>
+                            <option value="256">8bits</option>
+                            <option value="65536">16bits</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label for="exampleInputEmail1">sample size (pqk-means)</label>
+                        <input class="form-control mb-2" autofocus type="text" name="SampleSize">
+                    </div>
+                    <div class="col-auto">
+                        <input class="btn btn-primary" type="submit" value="Submit">
+                    </div>
             </div>
         </form>
 
@@ -66,5 +106,6 @@
         <button id="get_kmeans" type="button" class="btn btn-link">k-means</button>
     </div>
 </div>
+
 
 {% endblock %}

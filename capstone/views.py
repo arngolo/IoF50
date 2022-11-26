@@ -99,9 +99,17 @@ def pixels_app(request):
                vigs = request.POST['vigs']
                image_update.vigs = vigs
 
-          elif request.POST.get('BandStackList', False):
+          elif request.POST.get('BandStackList', False) and request.POST.get('KValue', False) and request.POST.get('NumSubdim', False) and request.POST.get('Ks', False) and request.POST.get('SampleSize', False):
                band_stack_list = request.POST['BandStackList']
+               k_value = request.POST['KValue']
+               num_subdimensions = request.POST['NumSubdim']
+               ks_value = request.POST['Ks']
+               sample_size = request.POST['SampleSize']
                image_update.band_stack_list = band_stack_list
+               image_update.k_value = k_value
+               image_update.num_subdimensions = num_subdimensions
+               image_update.ks_value = ks_value
+               image_update.sample_size = sample_size
           else:
                return exit(1)
 
@@ -135,6 +143,10 @@ def pixels_app(request):
           pqkmeans = fetched_data.get("pqkmeans")
           kmeans = fetched_data.get("kmeans")
           band_stack_list = fetched_data.get("band_stack_list")
+          k_value = fetched_data.get("k_value")
+          num_subdimensions = fetched_data.get("num_subdimensions")
+          ks_value = fetched_data.get("ks_value")
+          sample_size = fetched_data.get("sample_size")
 
 
           print("\n","spectral index name: ",spectral_index_name)
@@ -235,10 +247,10 @@ def pixels_app(request):
 
           elif pqkmeans and band_stack_list:
                name = "lulc_pqkmeans"
-               k=3
-               num_subdim=1
-               Ks=256
-               sample_size = 500
+               k = int(k_value)
+               num_subdim = int(num_subdimensions)
+               Ks = int(ks_value)
+               sample_size = int(sample_size)
                output = project_directory + '/media/output_images/map_pqkmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
                band_stack = get_band_stack(bands, band_stack_list, project_directory)
@@ -246,7 +258,7 @@ def pixels_app(request):
 
           elif kmeans and band_stack_list:
                name = "lulc_kmeans"
-               k=3
+               k = int(k_value)
                output = project_directory + '/media/output_images/map_kmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
                band_stack = get_band_stack(bands, band_stack_list, project_directory)

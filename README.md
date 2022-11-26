@@ -55,3 +55,15 @@ Satellite images ID should follow the format: `LANDSAT/<mission>/<collection>/<t
 
 ## Get Spectral Index
 For spectral index calculator, make sure you understand the satellite image specs (Bands). Only NASA Landsat and ESA Sentinel2 images allowed).
+
+## Image Classification
+
+- **Stack Bands:** list of bands to be stacked for unsupervised classification.
+
+- **k:** as you wish for the number of clusters
+
+- **num_of_subdim (M):**  The  number of subdimensions (from the input nD image) for quantization. Needs to be mltiple of num of bands. The higher the subdimension the slower the algorithm.
+
+- **Ks:**  represents the maximum digital number. By default it is 256 that corresponds to 8 bits.
+
+- **sample_size:** The number of pixels you select for quantization.
