@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const spectral_index_name = image[0].spectral_index_name;
     const spectral_index_equation = image[0].spectral_index_equation;
+    const spectral_index_color_palette = image[0].spectral_index_color_palette;
     const mei = image[0].mei;
     const vigs = image[0].vigs;
     const pqkmeans = image[0].pqkmeans;
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list, k_value));
     }
     if (spectral_index_name != "") {
-      document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation));
+      document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation, spectral_index_color_palette));
     }
   })
 
@@ -121,12 +122,13 @@ function get_kmeans(kmeans, band_stack_list, k_value) {
   });
 }
 
-function get_spectral_index(spectral_index_name, spectral_index_equation) {
+function get_spectral_index(spectral_index_name, spectral_index_equation, spectral_index_color_palette) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       spectral_index_name:spectral_index_name,
       spectral_index_equation:spectral_index_equation,
+      spectral_index_color_palette:spectral_index_color_palette
     })
   });
 }

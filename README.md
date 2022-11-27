@@ -1,4 +1,4 @@
-# Imagery on the Fly (IoF)
+# IoF50 (Imagery on the Fly)
 Primarily devised for Geospatial technology users, this website allows spatial analysis on the fly using GEE python API. It reduces user's computational costs, is memory efficient and users do not require a high storage capacity since the output result is primarely stored in local then uploaded to google cloud storage (GCS). 
 
 ## requirements

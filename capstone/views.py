@@ -85,12 +85,13 @@ def pixels_app(request):
                sat_image = request.POST['SatelliteImage']
                image_update.image_name = sat_image
 
-          elif request.POST.get('SpectralIndexName', False) and request.POST.get('SpectralIndexEquation', False):
+          elif request.POST.get('SpectralIndexName', False) and request.POST.get('SpectralIndexEquation', False) and request.POST.get('SpectralIndexColorPalette', False) or request.POST.get('SpectralIndexColorPalette', False):
                spectral_index_name = request.POST['SpectralIndexName']
                spectral_index_equation = request.POST['SpectralIndexEquation']
+               spectral_index_color_palette = request.POST['SpectralIndexColorPalette']
                image_update.spectral_index_name = spectral_index_name
                image_update.spectral_index_equation = spectral_index_equation
-
+               image_update.spectral_index_color_palette = spectral_index_color_palette
           elif request.POST.get('mei', False):
                mei = request.POST['mei']
                image_update.mei = mei
@@ -138,6 +139,7 @@ def pixels_app(request):
 
           spectral_index_name = fetched_data.get("spectral_index_name")
           spectral_index_equation = fetched_data.get("spectral_index_equation")
+          spectral_index_color_palette = fetched_data.get("spectral_index_color_palette")
           mei = fetched_data.get("mei")
           vigs = fetched_data.get("vigs")
           pqkmeans = fetched_data.get("pqkmeans")
@@ -151,6 +153,7 @@ def pixels_app(request):
 
           print("\n","spectral index name: ",spectral_index_name)
           print("\n","spectral index equation: ",spectral_index_equation)
+          print("\n","spectral_index_color_palette: ",spectral_index_color_palette)
           print("\n","mei: ",mei)
           print("\n","vigs: ",vigs)
           print("\n","pqkmeans: ",pqkmeans)
@@ -218,7 +221,7 @@ def pixels_app(request):
                # save normalized_index index
                output = project_directory + '/media/output_images/' + spectral_index_name + '.tif'
           #      color_text = "get color text from form"
-               color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                save_spectral_index(spectral_index, output, metadata)
                
           elif vigs:
@@ -228,7 +231,7 @@ def pixels_app(request):
                     # save vigs index
                     output = project_directory + '/media/output_images/vigs.tif'
                     # color_text = "get color text from form"
-                    color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+                    color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                     save_spectral_index(vigs, output, metadata)
                else:
                     pass
@@ -240,7 +243,7 @@ def pixels_app(request):
                     # save mei index
                     output = project_directory + '/media/output_images/mei.tif'
                     # color_text = "get color text from form"
-                    color_text = project_directory + '/media/palette_color_text/color_text_file_orange_green.txt'
+                    color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                     save_spectral_index(mei, output, metadata)
                else:
                     pass
@@ -252,7 +255,7 @@ def pixels_app(request):
                Ks = int(ks_value)
                sample_size = int(sample_size)
                output = project_directory + '/media/output_images/map_pqkmeans.tif'
-               color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                band_stack = get_band_stack(bands, band_stack_list, project_directory)
                PQKMeansGen(band_stack, output, k, num_subdim, Ks, sample_size, metadata)
 
@@ -260,7 +263,7 @@ def pixels_app(request):
                name = "lulc_kmeans"
                k = int(k_value)
                output = project_directory + '/media/output_images/map_kmeans.tif'
-               color_text = project_directory + '/media/palette_color_text/color_text_file_pqkmeans.txt'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                band_stack = get_band_stack(bands, band_stack_list, project_directory)
                KMeansGen(band_stack, output, k, metadata)
 

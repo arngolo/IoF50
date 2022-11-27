@@ -5,7 +5,7 @@
 
 <div class="content">
     <div id="panel" class="sticky">
-        <p>Imagery on the fly - cs50x capstone project</p>
+        <p>IoF50 Imagery on the Fly</p>
     </div>
     <div id="map"></div>
     <div id="control_panel">
@@ -47,10 +47,23 @@
         <form id="spectral" action="{% url 'pixels' %}" method="post">
             <div class="form-row align-items-center">
                 <div class="col-auto">
-                    <input class="form-control mb-2" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
+                    <input class="form-control mb-1" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
                 </div>
                 <div class="col-auto">
-                    <input class="form-control mb-2" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                    <input class="form-control mb-1" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                </div>
+                <div class="col-auto">
+                    <!-- <label for="exampleInputEmail1">color palette</label> -->
+                    <select class="form-control mb-1" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
+                        <!-- <option value="bygor">default</option> -->
+                        <option value="GBr">green brown</option>
+                        <option value="orange">orange</option>
+                        <option value="orange_green">orange_green</option>
+                        <option value="rainbow">rainbow</option>
+                        <option value="rgb">rgb</option>
+                        <option value="rgb2">rgb2</option>
+                        <option value="viridis">viridis</option>
+                    </select>
                 </div>
                 <div class="col-auto">
                     <input class="btn btn-primary" type="submit" value="Submit">
@@ -72,19 +85,19 @@
                     <!-- add later a pop-up menu that shows up if the spectral index is not present in local and suggest to create 1 using the get_spectral_index function-->
                     <div class="col-auto">
                         <label for="exampleInputEmail1">band list</label>
-                        <input class="form-control mb-2" id="inlineFormInput" type="text" name="BandStackList" placeholder="e.g.: B1, B2, ndvi">
+                        <input class="form-control mb-4" id="inlineFormInput" type="text" name="BandStackList" placeholder="e.g.: B1, B2, ndvi">
                     </div>
                     <div class="col-auto">
                     <label for="exampleInputEmail1">number of clusters</label>
-                    <input class="form-control mb-2" id="inlineFormInput" type="text" name="KValue" placeholder="k value">
+                    <input class="form-control mb-4" id="inlineFormInput" type="text" name="KValue" placeholder="k value">
                     </div>
                     <div class="col-auto">
                     <label for="exampleInputEmail1">number of subdimensions (pqk-means)</label>
-                    <input class="form-control mb-2" id="inlineFormInput" type="text" name="NumSubdim">
+                    <input class="form-control mb-4" id="inlineFormInput" type="text" name="NumSubdim">
                     </div>
                     <div class="col-auto">
                         <label for="exampleInputEmail1">Ks value (pqk-means)</label>
-                        <select class="form-control mb-2" id="inlineFormInput" name="Ks">
+                        <select class="form-control mb-4" id="inlineFormInput" name="Ks">
                             <option value="4">2bits</option>
                             <option value="16">4bits</option>
                             <option value="256">8bits</option>
@@ -93,7 +106,7 @@
                     </div>
                     <div class="col-auto">
                         <label for="exampleInputEmail1">sample size (pqk-means)</label>
-                        <input class="form-control mb-2" autofocus type="text" name="SampleSize">
+                        <input class="form-control mb-4" autofocus type="text" name="SampleSize">
                     </div>
                     <div class="col-auto">
                         <input class="btn btn-primary" type="submit" value="Submit">

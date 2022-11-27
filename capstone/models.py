@@ -7,6 +7,7 @@ class Imagery(models.Model):
     image_name = models.CharField(max_length=200, default="")
     spectral_index_name = models.TextField(db_column='spectral_index_name', default="")
     spectral_index_equation = models.TextField(db_column='spectral_index_equation', default="")
+    spectral_index_color_palette = models.TextField(db_column='spectral_index_color_palette', default="")
     mei = models.TextField(db_column='mei', default="mei")
     vigs = models.TextField(db_column='vigs', default="vigs")
     pqkmeans = models.TextField(db_column='pqkmeans', default="pqkmeans")
@@ -25,4 +26,4 @@ class Imagery(models.Model):
 
 
     def serialize(self):
-        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "kmeans": self.kmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation, "band_stack_list": self.band_stack_list, "k_value":self.k_value, "num_subdimensions":self.num_subdimensions, "ks_value":self.ks_value, "sample_size":self.sample_size}
+        return {"image_id": self.image_id, "image_name": self.image_name, "shapefile": self.shapefile_path_shp.path, "mei": self.mei, "vigs": self.vigs, "pqkmeans": self.pqkmeans, "kmeans": self.kmeans, "spectral_index_name": self.spectral_index_name, "spectral_index_equation": self.spectral_index_equation, "spectral_index_color_palette":self.spectral_index_color_palette,"band_stack_list": self.band_stack_list, "k_value":self.k_value, "num_subdimensions":self.num_subdimensions, "ks_value":self.ks_value, "sample_size":self.sample_size}

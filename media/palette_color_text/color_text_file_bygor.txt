@@ -4,4 +4,4 @@ nv 0 0 0 0
 100 green
 150 orange
 200 red
-250 250 250 250
+250 white
