@@ -1,7 +1,10 @@
 from sklearn import preprocessing
 import rasterio
+from rasterio.merge import merge
 import numpy as np
 import os
+from affine import Affine
+import pathlib
 
 scaler1 = preprocessing.MinMaxScaler(feature_range=(0.0, 1.0))
 scaler2 = preprocessing.MinMaxScaler(feature_range=(0, 255))
@@ -19,9 +22,14 @@ def vigs_index(green, red, nir, swir1, swir2):
     return scaler2.fit_transform(result).astype("uint8")
 
 def save_spectral_index(index, output, meta_out):
-    index_output = rasterio.open(output, "w", driver = meta_out["driver"], height = meta_out["height"], width =  meta_out["width"], dtype = "uint8", count = 1, nodata = 0, crs = meta_out["crs"], transform = meta_out["transform"])
-    index_output.write(index, 1)
-    index_output.close()
+    # merge with a previuosly created tiff if exists
+    if os.path.exists(output):
+        mosaic(index, output, meta_out)
+
+    else:
+        index_output = rasterio.open(output, "w", driver = meta_out["driver"], height = meta_out["height"], width =  meta_out["width"], dtype = "uint8", count = 1, nodata = 0, crs = meta_out["crs"], transform = meta_out["transform"])
+        index_output.write(index, 1)
+        index_output.close()
 
 def get_metadata(band_array,crs, affine_transform):
 
@@ -134,3 +142,28 @@ def get_band_stack(bands, stack_list_string, project_directory):
                         spectral_index = np.ma.masked_values(spectral_index, 0)
                         stack.append(spectral_index)
     return stack
+
+def mosaic(index, output, meta_out):
+    tmp_output = output.split(".")[0] + "_backup.tif"
+    index_output = rasterio.open(tmp_output, "w", driver = meta_out["driver"], height = meta_out["height"], width =  meta_out["width"], dtype = "uint8", count = 1, nodata = 0, crs = meta_out["crs"], transform = meta_out["transform"])
+    index_output.write(index, 1)
+    index_output.close()
+
+    src1 = rasterio.open(output)
+    src2= rasterio.open(tmp_output)
+
+    src_files_to_mosaic = []
+    src_files_to_mosaic.append(src1)
+    src_files_to_mosaic.append(src2)
+
+    mosaic, out_trans = merge(src_files_to_mosaic)
+    src1=""
+    src2=""
+    src_files_to_mosaic=""
+    rem_output = pathlib.Path(output)
+    rem_output.unlink()
+    index_output = rasterio.open(output, "w", driver = meta_out["driver"], height = mosaic[0].shape[0], width = mosaic[0].shape[1], dtype = "uint8", count = 1, nodata = 0, crs = meta_out["crs"], transform = out_trans)
+    index_output.write(mosaic[0], 1)
+    index_output.close()
+    rem_tmp_output = pathlib.Path(tmp_output)
+    rem_tmp_output.unlink()
