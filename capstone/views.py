@@ -11,19 +11,23 @@ from django.views.decorators.csrf import csrf_exempt
 from affine import Affine
 from .classifier import PQKMeansGen, KMeansGen
 from .shapefile_to_json import shp_to_json
-from osgeo import gdal
+# from osgeo import gdal
 from .upload_to_server import upload_objects_to_gcp
 import gdal2tiles
-from .spectral_tools import normalized_difference, vigs_index, moisture_enhanced_index, save_spectral_index, get_metadata, get_bands, get_band_stack
+from .spectral_tools import vigs_index, moisture_enhanced_index, save_spectral_index, get_metadata, get_bands, get_band_stack
 from pyproj import Proj
+from django.contrib import messages
 
 
 
 # Earth Engine authentication
-authentication = json.load(open(os.getcwd() + '/authentication.json'))
-private_key = os.getcwd() + "/" + authentication["private_key"]
-ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"], private_key)
-ee.Initialize(ee_credentials)
+try:
+     authentication = json.load(open(os.getcwd() + '/authentication.json'))
+     private_key = os.getcwd() + "/" + authentication["private_key"]
+     ee_credentials = ee.ServiceAccountCredentials(authentication["service_account"], private_key)
+     ee.Initialize(ee_credentials)
+except Exception as Err:
+     messages.error(message = Err)
 
 # google cloud storage authentication
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = private_key
@@ -50,72 +54,99 @@ def pixels_app(request):
           image_update = Imagery.objects.get(pk=1)
 
           if request.FILES.getlist('ShapefileLocation'):
-               shape_files = request.FILES.getlist('ShapefileLocation')
+               try:
+                    shape_files = request.FILES.getlist('ShapefileLocation')
 
-               # remove the existing shapefile from media 
-               shapefiles_folder = project_directory + '/media/shapefiles'
-               if os.path.exists(shapefiles_folder):
-                    if len(os.listdir(shapefiles_folder)) != 0:
-                         for f in os.listdir(shapefiles_folder):
-                              os.remove(os.path.join(shapefiles_folder, f))
+                    # remove the existing shapefile from media
+                    shapefiles_folder = project_directory + '/media/shapefiles'
+                    # try:
+                    if os.path.exists(shapefiles_folder):
+                         if len(os.listdir(shapefiles_folder)) != 0:
+                              for f in os.listdir(shapefiles_folder):
+                                   os.remove(os.path.join(shapefiles_folder, f))
 
-               # # add new shapefile
-               for file in shape_files:
-                    if ".shp" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_shp = file
-                    elif ".dbf" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_dbf = file
-                    elif ".shx" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_shx = file
-                    elif ".sbx" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_sbx = file
-                    elif ".sbn" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_sbn = file
-                    elif ".prj" in str(file):
-                         print(str(file))    
-                         image_update.shapefile_path_prj = file
+                    # # add new shapefile
+                    for file in shape_files:
+                         if ".shp" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_shp = file
+                         elif ".dbf" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_dbf = file
+                         elif ".shx" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_shx = file
+                         elif ".sbx" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_sbx = file
+                         elif ".sbn" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_sbn = file
+                         elif ".prj" in str(file):
+                              print(str(file))
+                              image_update.shapefile_path_prj = file
+                    messages.success(request, 'shapfile saved')
+               except Exception as Err:
+                    messages.error(request, Err)
 
           # if the following condition is not true, returns False
           elif request.POST.get('SatelliteImage', False):
-               sat_image = request.POST['SatelliteImage']
-               image_update.image_name = sat_image
+               try:
+                    sat_image = request.POST['SatelliteImage']
+                    image_update.image_name = sat_image
+                    messages.success(request, 'image ID saved')
+               except Exception as Err:
+                    messages.error(request, Err)
 
           elif request.POST.get('SpectralIndexName', False) and request.POST.get('SpectralIndexEquation', False) and request.POST.get('SpectralIndexColorPalette', False) or request.POST.get('SpectralIndexColorPalette', False):
-               spectral_index_name = request.POST['SpectralIndexName']
-               spectral_index_equation = request.POST['SpectralIndexEquation']
-               spectral_index_color_palette = request.POST['SpectralIndexColorPalette']
-               image_update.spectral_index_name = spectral_index_name
-               image_update.spectral_index_equation = spectral_index_equation
-               image_update.spectral_index_color_palette = spectral_index_color_palette
+               try:
+                    spectral_index_name = request.POST['SpectralIndexName']
+                    spectral_index_equation = request.POST['SpectralIndexEquation']
+                    spectral_index_color_palette = request.POST['SpectralIndexColorPalette']
+                    image_update.spectral_index_name = spectral_index_name
+                    image_update.spectral_index_equation = spectral_index_equation
+                    image_update.spectral_index_color_palette = spectral_index_color_palette
+                    messages.success(request, 'spectral index request info saved')
+               except Exception as Err:
+                    messages.error(request, Err)
+
           elif request.POST.get('mei', False):
-               mei = request.POST['mei']
-               image_update.mei = mei
+               try:
+                    mei = request.POST['mei']
+                    image_update.mei = mei
+                    messages.success(request, 'moisture enhanced index (mei) request info saved')
+               except Exception as Err:
+                    messages.error(request, Err)
 
           elif request.POST.get('vigs', False):
-               vigs = request.POST['vigs']
-               image_update.vigs = vigs
+               try:
+                    vigs = request.POST['vigs']
+                    image_update.vigs = vigs
+                    messages.success(request, 'vigs request info saved (vegetation index considering green and short-wave infrared)')
+               except Exception as Err:
+                    messages.error(request, Err)
 
           elif request.POST.get('BandStackList', False) and request.POST.get('KValue', False) and request.POST.get('NumSubdim', False) and request.POST.get('Ks', False) and request.POST.get('SampleSize', False):
-               band_stack_list = request.POST['BandStackList']
-               k_value = request.POST['KValue']
-               num_subdimensions = request.POST['NumSubdim']
-               ks_value = request.POST['Ks']
-               sample_size = request.POST['SampleSize']
-               image_update.band_stack_list = band_stack_list
-               image_update.k_value = k_value
-               image_update.num_subdimensions = num_subdimensions
-               image_update.ks_value = ks_value
-               image_update.sample_size = sample_size
+               try:
+                    band_stack_list = request.POST['BandStackList']
+                    k_value = request.POST['KValue']
+                    num_subdimensions = request.POST['NumSubdim']
+                    ks_value = request.POST['Ks']
+                    sample_size = request.POST['SampleSize']
+                    image_update.band_stack_list = band_stack_list
+                    image_update.k_value = k_value
+                    image_update.num_subdimensions = num_subdimensions
+                    image_update.ks_value = ks_value
+                    image_update.sample_size = sample_size
+                    messages.success(request, 'classifier parameters saved')
+               except Exception as Err:
+                    messages.error(request, Err)
+
           else:
-               return exit(1)
+               messages.error(request, 'no request. requests are: load shapfile, insert image ID, calculate spectral index, calculate custom spectral index and classify image')
+               return HttpResponseRedirect(reverse("index"))
 
           image_update.save()
-          return HttpResponseRedirect(reverse("index"))
 
      elif request.method == "PUT":
           # for this project, the database needs to have at least 1 element. index function creates 1 by default.
@@ -135,6 +166,9 @@ def pixels_app(request):
                mission = 'landsat'
           elif image_name.startswith("COPERNICUS"):
                mission = 'sentinel'
+          else:
+               messages.error(request, 'please make sure you use landsat or sentinel2 data')
+               return HttpResponseRedirect(reverse("index"))
           print("\n","Satellite Mission: ", mission, "\n")
 
           spectral_index_name = fetched_data.get("spectral_index_name")
@@ -163,9 +197,12 @@ def pixels_app(request):
           vector_path = image_update.shapefile_path_shp.path
           if "\\" in vector_path:
                vector_path = vector_path.replace("\\", "/")
-
           # from shapefile to json
-          data = shp_to_json(vector_path)
+          try:
+               data = shp_to_json(vector_path)
+          except Exception as Err:
+               messages.error(request, Err)
+               return HttpResponseRedirect(reverse("index"))
           # print(data)
 
           coordinates_list = data['geometry']['coordinates']
@@ -186,7 +223,6 @@ def pixels_app(request):
           band_arrays = masked_image.sampleRectangle(region=bounds, defaultValue=0)
           
           bands = get_bands(mission, band_arrays)
-          # print(bands)
 
           # IMAGE METADATA
           image_info=image.getInfo()
@@ -256,7 +292,10 @@ def pixels_app(request):
                sample_size = int(sample_size)
                output = project_directory + '/media/output_images/map_pqkmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-               band_stack = get_band_stack(bands, band_stack_list, project_directory)
+               band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
+               if num_bands != len(band_stack_list.split(",")):
+                    messages.error(request, 'Band or index not present. Please update band list')
+                    return HttpResponseRedirect(reverse("index"))
                PQKMeansGen(band_stack, output, k, num_subdim, Ks, sample_size, metadata)
 
           elif kmeans and band_stack_list:
@@ -264,11 +303,18 @@ def pixels_app(request):
                k = int(k_value)
                output = project_directory + '/media/output_images/map_kmeans.tif'
                color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-               band_stack = get_band_stack(bands, band_stack_list, project_directory)
+               band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
+               print("num_bands: ", num_bands)
+               print("band_stack_list: ", len(band_stack_list.split(",")))
+               if num_bands != len(band_stack_list.split(",")):
+                    messages.error(request, 'Band or index not present. Please update band list')
+                    return HttpResponseRedirect(reverse("index"))
                KMeansGen(band_stack, output, k, metadata)
 
           else:
-               return exit(1)
+               messages.success(request, 'please check your spectral index calculation or classification method')
+               return HttpResponseRedirect(reverse("index"))
+
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
           os.system(CMD)
@@ -280,5 +326,6 @@ def pixels_app(request):
 
           # upload maptiles to google cloud storage
           upload_objects_to_gcp(project_directory, authentication["bucket_name"], name)
+          messages.success(request, 'map generated successfully')
 
-          return HttpResponseRedirect(reverse("index"))
+     return HttpResponseRedirect(reverse("index"))

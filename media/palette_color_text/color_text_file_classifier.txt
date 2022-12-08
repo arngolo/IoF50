@@ -1,0 +1,7 @@
+nv 0 0 0 0
+1 blue
+2 yellow
+3 green
+4 orange
+5 red
+6 white

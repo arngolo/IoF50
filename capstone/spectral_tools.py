@@ -116,6 +116,7 @@ def get_bands(mission, band_arrays, spectral_index_equation = None):
 
 def get_band_stack(bands, stack_list_string, project_directory):
     stack = []
+    band_count_validation = 0
     stack_list = stack_list_string.split(",")
     print(stack_list)
     for i in stack_list:
@@ -123,14 +124,17 @@ def get_band_stack(bands, stack_list_string, project_directory):
         print("band name: ", i)
         if len(i) < 3 or i == "B8A":
             print("band length: ", len(i))
+            band_count_validation+=1
             stack.append(bands[i])
         else:
             print("band length: ", len(i))
             for j in os.listdir(project_directory + '/media/output_images'):
-                if j.endswith('.tif'):
+                if j.endswith('.tif') and "colored" not in j:
                     print(j)
-                    if i in j and "colored" not in j:
+                    if i == j.split(".tif")[0]:
                         spectral_index = rasterio.open(project_directory + '/media/output_images/' + j).read(1)
                         spectral_index = np.ma.masked_values(spectral_index, 0)
                         stack.append(spectral_index)
-    return stack
+                        band_count_validation+=1
+
+    return stack, band_count_validation

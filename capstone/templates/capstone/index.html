@@ -4,8 +4,17 @@
 {% block body %}
 
 <div class="content">
-    <div id="panel" class="sticky">
-        <p>IoF50 Imagery on the Fly</p>
+    <div class="sticky-top">
+        <p id="panel">IoF50 Imagery on the Fly</p>
+    </div>
+    <div class="sticky-top">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="alert alert-{{ message.tags }} m-2"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
     <div id="map"></div>
     <div id="control_panel">
@@ -55,7 +64,7 @@
                 <div class="col-auto">
                     <!-- <label for="exampleInputEmail1">color palette</label> -->
                     <select class="form-control mb-1" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
-                        <!-- <option value="bygor">default</option> -->
+                        <option value="classifier">default</option>
                         <option value="GBr">green brown</option>
                         <option value="orange">orange</option>
                         <option value="orange_green">orange_green</option>
