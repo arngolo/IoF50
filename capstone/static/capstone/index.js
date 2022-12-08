@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-});
+  });
   var satelliteImage = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
   });
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(kmeans);
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
+    console.log(spectral_index_color_palette);
     console.log(band_stack_list);
     console.log(k_value);
     console.log(num_subdimensions);
@@ -61,43 +62,55 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(sample_size);
 
     if (mei != "") {
-      document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei));
+      document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei, spectral_index_color_palette));
     }
     if (vigs != "") {
-      document.querySelector('#get_vigs').addEventListener('click', () => get_vigs(vigs));
+      document.querySelector('#get_vigs').addEventListener('click', () => get_vigs(vigs, spectral_index_color_palette));
     }
     if (pqkmeans != "") {
-      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size));
+      document.querySelector('#get_pqkmeans').addEventListener('click', () => get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size, spectral_index_color_palette));
     }
     if (kmeans != "") {
-      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list, k_value));
+      document.querySelector('#get_kmeans').addEventListener('click', () => get_kmeans(kmeans, band_stack_list, k_value, spectral_index_color_palette));
     }
     if (spectral_index_name != "") {
       document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation, spectral_index_color_palette));
     }
   })
 
+  // Get all info messages
+  var info_messages = document.getElementsByClassName('alert');
+
+  setTimeout(function(){
+      for (var i = 0; i < info_messages.length; i ++) {
+          // Set display attribute as !important, neccessary when using bootstrap
+          info_messages[i].setAttribute('style', 'display:none !important');
+      }
+  }, 3000);
+
 });
 
-function get_mei(mei) {
+function get_mei(mei, spectral_index_color_palette) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       mei:mei,
+      spectral_index_color_palette:spectral_index_color_palette
     })
   });
 }
 
-function get_vigs(vigs) {
+function get_vigs(vigs, spectral_index_color_palette) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       vigs:vigs,
+      spectral_index_color_palette:spectral_index_color_palette
     })
   });
 }
 
-function get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size) {
+function get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_value, sample_size, spectral_index_color_palette) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
@@ -107,17 +120,19 @@ function get_pqkmeans(pqkmeans, band_stack_list, k_value, num_subdimensions, ks_
       num_subdimensions:num_subdimensions,
       ks_value:ks_value,
       sample_size:sample_size,
+      spectral_index_color_palette:spectral_index_color_palette
     })
   });
 }
 
-function get_kmeans(kmeans, band_stack_list, k_value) {
+function get_kmeans(kmeans, band_stack_list, k_value, spectral_index_color_palette) {
   fetch(`/pixels`, {
     method: 'PUT',
     body: JSON.stringify({
       kmeans:kmeans,
       band_stack_list:band_stack_list,
       k_value:k_value,
+      spectral_index_color_palette:spectral_index_color_palette
     })
   });
 }
