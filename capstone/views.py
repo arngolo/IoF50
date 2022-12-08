@@ -322,7 +322,7 @@ def pixels_app(request):
           # Generate maptiles
           input = output.split(".")[0] + "_colored.tif"
           # tiles_output = output.split(".")[0] + "_tiles"
-          gdal2tiles.generate_tiles(input, project_directory + "/media/output_images/" + name, zoom='0-15', srcnodtata = 0)
+          gdal2tiles.generate_tiles(input, project_directory + "/media/output_images/" + name, zoom='0-15', srcnodata = 0)
 
           # upload maptiles to google cloud storage
           upload_objects_to_gcp(project_directory, authentication["bucket_name"], name)

@@ -1,9 +1,12 @@
 import numpy as np
 import rasterio
+from rasterio.merge import merge
 import pandas as pd
 import time
 import pqkmeans
 from sklearn.cluster import KMeans
+import os
+from .spectral_tools import mosaic
 
 def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     print(metadata)
@@ -65,10 +68,14 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     im = np.reshape(im, (band.shape[0],  band.shape[1] ))
     ##### After, Save
 
-    PQKMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = metadata["count"], nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
-    PQKMean_output.write(im, 1)
-    PQKMean_output.close()
-    writing_end=time.perf_counter()
+    # merge with a previuosly created tiff if exists
+    if os.path.exists(output):
+        mosaic(im, output, metadata)
+    else:
+        PQKMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = metadata["count"], nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
+        PQKMean_output.write(im, 1)
+        PQKMean_output.close()
+        writing_end=time.perf_counter()
     print(f"Finished writing clustering in {writing_end/60 - writing_start/60} min")
     print(f"Total pqkmeans time: {clustering_end_time/60 - encoder_start_time/60} min")
     print(f"Total processing time: {writing_end/60 - tstart/60} min")
@@ -118,10 +125,14 @@ def KMeansGen(bands_array, output, k, metadata):
     im = np.reshape(im, (band.shape[0],  band.shape[1] ))
     ##### After, Save
 
-    KMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = metadata["count"], nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
-    KMean_output.write(im, 1)
-    KMean_output.close()
-    writing_end=time.perf_counter()
-    print(f"Finished writing clustering in {writing_end/60 - writing_start/60} min")
-    print(f"Total kmeans time: {clustering_end_time/60 - clustering_start_time/60} min")
-    print(f"Total processing time: {writing_end/60 - tstart/60} min")
+    # merge with a previuosly created tiff if exists
+    if os.path.exists(output):
+        mosaic(im, output, metadata)
+    else:
+        KMean_output = rasterio.open(output, "w", driver = metadata["driver"], height =  metadata["height"], width =  metadata["width"], dtype =  metadata["dtype"], count = metadata["count"], nodata = metadata["nodata"], crs = metadata["crs"], transform =  metadata["transform"])
+        KMean_output.write(im, 1)
+        KMean_output.close()
+        writing_end=time.perf_counter()
+        print(f"Finished writing clustering in {writing_end/60 - writing_start/60} min")
+        print(f"Total kmeans time: {clustering_end_time/60 - clustering_start_time/60} min")
+        print(f"Total processing time: {writing_end/60 - tstart/60} min")
