@@ -76,9 +76,9 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
         PQKMean_output.write(im, 1)
         PQKMean_output.close()
         writing_end=time.perf_counter()
-    print(f"Finished writing clustering in {writing_end/60 - writing_start/60} min")
-    print(f"Total pqkmeans time: {clustering_end_time/60 - encoder_start_time/60} min")
-    print(f"Total processing time: {writing_end/60 - tstart/60} min")
+        print(f"Finished writing clustering in {writing_end/60 - writing_start/60} min")
+        print(f"Total pqkmeans time: {clustering_end_time/60 - encoder_start_time/60} min")
+        print(f"Total processing time: {writing_end/60 - tstart/60} min")
 
 def KMeansGen(bands_array, output, k, metadata):
     print(metadata)

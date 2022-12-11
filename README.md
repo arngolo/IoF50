@@ -51,6 +51,7 @@ Satellite images ID should follow the format: `LANDSAT/<mission>/<collection>/<t
 ### Example:
 `LANDSAT/LC09/C02/T1/LC09_182066_20220611` (use with shapefile Patrice_Lumumba)
 `LANDSAT/LC09/C02/T1/LC09_182068_20220611` (use with shapefile Lobito)
+`LANDSAT/LC09/C02/T1/LC09_108030_20220909` (use with shapefile Sapporo)
 `COPERNICUS/S2_SR/20220805T012659_20220805T013242_T54TWN` (use with shapefile Sapporo)
 
 **Note:** GEE python API only accepts sampling <= 262144 pixels (the process of getting pixels from GEE cloud storage). For larger areas you might have to choose a shapefile with a higher level of administrative boundaries of your area of interest (`Sapporo for example in test_data folder`) or divide it into smaller pieces to meet the sampling requirements (`Lobito shapefile for example in test_data folder`).
