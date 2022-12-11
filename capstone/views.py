@@ -53,9 +53,12 @@ def pixels_app(request):
      elif request.method == "POST":
           image_update = Imagery.objects.get(pk=1)
 
-          if request.FILES.getlist('ShapefileLocation'):
+          if request.FILES.getlist('ShapefileLocation') or request.FILES.getlist('Shapefileparentdir'):
                try:
-                    shape_files = request.FILES.getlist('ShapefileLocation')
+                    if request.FILES.getlist('ShapefileLocation'):
+                         shape_files = request.FILES.getlist('ShapefileLocation')
+                    elif request.FILES.getlist('Shapefileparentdir'):
+                         shape_files = request.FILES.getlist('Shapefileparentdir')
 
                     # remove the existing shapefile from media
                     shapefiles_folder = project_directory + '/media/shapefiles'
@@ -85,6 +88,7 @@ def pixels_app(request):
                          elif ".prj" in str(file):
                               print(str(file))
                               image_update.shapefile_path_prj = file
+                         image_update.save()
                     messages.success(request, 'shapfile saved')
                except Exception as Err:
                     messages.error(request, Err)

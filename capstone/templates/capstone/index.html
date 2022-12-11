@@ -25,8 +25,21 @@
                     <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
                         <div class="form-row align-items-center">
                             <div class="col-auto">
-                                <label for="colFormLabelSm">Load area</label>
+                                <label for="colFormLabelSm">Load vector (files)</label>
                                 <input class="form-control mb-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
+                            </div>
+                            <div class="col-auto">
+                                <input class="btn btn-primary" type="submit" value="Submit">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col">
+                    <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
+                        <div class="form-row align-items-center">
+                            <div class="col-auto">
+                                <label for="colFormLabelSm">Load vector (folder)</label>
+                                <input class="form-control mb-4" autofocus type="file" name="Shapefileparentdir" placeholder="shapefile and dependencies" webkitdirectory multiple>
                             </div>
                             <div class="col-auto">
                                 <input class="btn btn-primary" type="submit" value="Submit">
