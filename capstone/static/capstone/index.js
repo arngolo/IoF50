@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tilematrixset: 'GoogleMapsCompatible_Level'
   });
 
+  // for index in database display layer.....
   ndviLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/ndvi/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
   meiLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/mei/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
   vigsLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/vigs/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
@@ -47,6 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const num_subdimensions = image[0].num_subdimensions;
     const ks_value = image[0].ks_value;
     const sample_size = image[0].sample_size;
+    const pqkmeans_labels = image[0].pqkmeans_labels;
+    const kmeans_labels = image[0].kmeans_labels;
 
     console.log(mei);
     console.log(vigs);
@@ -55,11 +58,16 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(spectral_index_name);
     console.log(spectral_index_equation);
     console.log(spectral_index_color_palette);
+    if (spectral_index_color_palette.includes('diverging')) {
+      console.log(spectral_index_color_palette.replace('diverging', ''));
+    }
     console.log(band_stack_list);
     console.log(k_value);
     console.log(num_subdimensions);
     console.log(ks_value);
     console.log(sample_size);
+    console.log(pqkmeans_labels);
+    console.log(kmeans_labels);
 
     if (mei != "") {
       document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei, spectral_index_color_palette));
@@ -76,9 +84,71 @@ document.addEventListener('DOMContentLoaded', function() {
     if (spectral_index_name != "") {
       document.querySelector('#get_spectral_index').addEventListener('click', () => get_spectral_index(spectral_index_name, spectral_index_equation, spectral_index_color_palette));
     }
+
+    // add legend on checkbox
+    map.on('overlayadd', function(e){
+      console.log("e.name:", e.name)
+      if (e.name == "lulc pqkmeans" || e.name == "lulc kmeans") {
+        // Categorical legend
+        if (e.name == "lulc pqkmeans") {
+          var data = JSON.parse(pqkmeans_labels);
+        }
+        else {
+          var data = JSON.parse(kmeans_labels);
+        }
+        var color = d3.scaleOrdinal()
+          .domain(data)
+          .range(d3.schemeCategory10);
+
+        d3.select(".my_categorical_legend")
+          .selectAll("div")
+          .data(data)
+          .enter()
+          .append("div")
+          .style("width", '20px')
+          .style("background-color", function(d){ return color(d)})
+          .text(function(d) { return d; });
+      }
+      else {
+        // Sequential and diverging type of legend
+        document.querySelector("#top_value").innerHTML = 255; // legend top value
+
+        var data = [...Array(180).keys()];
+        if (spectral_index_color_palette.includes('diverging')) {
+        var color = d3.scaleDiverging() // source: https://www.d3indepth.com/scales/
+                      .domain([0, 250])
+                      .interpolator(d3[`interpolate${spectral_index_color_palette.replace('diverging', '')}`]);
+        }
+        else {
+          var color = d3.scaleSequential()
+                        .domain([0, 250])
+                        .interpolator(d3[`interpolate${spectral_index_color_palette}`]); // other sequential interpolaters: Viridis, Inferno, Magma, Plasma, Warm, Cool, Rainbow, CubehelixDefault
+        }
+        d3.select(".my_sequential_legend")
+          .selectAll("div")
+          .data(data)
+          .enter()
+          .append("div")
+          .style("width", '60px')
+          .style("background-color", function(d){ return color(d)});
+      }
+
+      document.querySelector("#bottom_value").innerHTML = 0; // legend bottom value
+    })
+
+    // remove legend on checkbox
+    map.on('overlayremove', function(e){
+      document.querySelector(".my_categorical_legend").innerHTML = '';
+      document.querySelector(".my_sequential_legend").innerHTML = '';
+      document.querySelector("#top_value").innerHTML = '';
+      document.querySelector("#bottom_value").innerHTML = '';
+    })
+
+
+
   })
 
-  // Get all info messages
+  // messages timer
   var info_messages = document.getElementsByClassName('alert');
 
   setTimeout(function(){

@@ -89,7 +89,7 @@ def pixels_app(request):
                               print(str(file))
                               image_update.shapefile_path_prj = file
                          image_update.save()
-                    messages.success(request, 'shapfile saved')
+                    messages.success(request, 'shapfiles saved')
                except Exception as Err:
                     messages.error(request, Err)
 
@@ -278,12 +278,12 @@ def pixels_app(request):
                     elif vigs:
                          if mission == "landsat":
                               name = "vigs"
-                              vigs = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
+                              vigs_indx = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
                               # save vigs index
                               output = project_directory + '/media/output_images/vigs.tif'
                               # color_text = "get color text from form"
                               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-                              save_spectral_index(vigs, output, metadata)
+                              save_spectral_index(vigs_indx, output, metadata)
                          else:
                               messages.error(request, 'vigs index is exclusiv for landsat data')
                               return HttpResponseRedirect(reverse("index"))
@@ -291,12 +291,12 @@ def pixels_app(request):
                     elif mei:
                          if mission == "landsat":
                               name = "mei"
-                              mei = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
+                              mei_indx = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
                               # save mei index
                               output = project_directory + '/media/output_images/mei.tif'
                               # color_text = "get color text from form"
                               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-                              save_spectral_index(mei, output, metadata)
+                              save_spectral_index(mei_indx, output, metadata)
                          else:
                               messages.error(request, 'mei index is exclusiv for landsat data')
                               return HttpResponseRedirect(reverse("index"))

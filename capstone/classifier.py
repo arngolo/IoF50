@@ -7,6 +7,7 @@ import pqkmeans
 from sklearn.cluster import KMeans
 import os
 from .spectral_tools import mosaic
+from .models import Imagery
 
 def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     print(metadata)
@@ -66,8 +67,15 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
     im = Result.values + 1
     im = im.astype(metadata["dtype"])
     im = np.reshape(im, (band.shape[0],  band.shape[1] ))
-    ##### After, Save
 
+    # get labels for pqkmeans legend and update in database
+    pqkmeans_labels = list(np.unique(im))
+    print("unique", pqkmeans_labels)
+    image_update = Imagery.objects.get(pk=1)
+    image_update.pqkmeans_labels = str(pqkmeans_labels)
+    image_update.save()
+
+    ##### Save after classification
     # merge with a previuosly created tiff if exists
     if os.path.exists(output):
         mosaic(im, output, metadata)
@@ -123,8 +131,15 @@ def KMeansGen(bands_array, output, k, metadata):
     im = Result.values + 1
     im = im.astype(metadata["dtype"])
     im = np.reshape(im, (band.shape[0],  band.shape[1] ))
-    ##### After, Save
 
+    # get labels for kmeans legend and update in database
+    kmeans_labels = list(np.unique(im))
+    print("unique", kmeans_labels)
+    image_update = Imagery.objects.get(pk=1)
+    image_update.kmeans_labels = kmeans_labels
+    image_update.save()
+
+    ##### Save after classification
     # merge with a previuosly created tiff if exists
     if os.path.exists(output):
         mosaic(im, output, metadata)

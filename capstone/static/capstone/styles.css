@@ -53,3 +53,34 @@ html,body {
 #classif, #spectral, #load_vector_image, #classifier_param {
   color: white;
 }
+
+#legend {
+  margin-left: 5%;
+  margin-top: 0.5%;
+}
+
+.my_categorical_legend div {
+  font: 10px sans-serif;
+  display: flex;
+  justify-content: center;
+  text-align: right;
+  padding: 3px;
+  margin-left: 5%;
+  margin-bottom: 2px;
+  color: black;
+}
+
+.my_sequential_legend div {
+  /* font: 10px sans-serif; */
+  /* text-align: right; */
+  padding: 0.25px;
+  /* color: black; */
+}
+
+#top_value #bottom_value {
+  font: 10px sans-serif;
+  text-align: right;
+  padding: 0.25px;
+  color: white;
+  position: relative;
+}
