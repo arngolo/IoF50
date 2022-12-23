@@ -28,14 +28,14 @@
         </div>
     </div>
     <div id="control_panel">
-
+        <hr color="red" size="10">
         <div id="load_vector_image" class="container">
             <div class="row">
                 <div class="col">
                     <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
                         <div class="form-row align-items-center">
                             <div class="col-auto">
-                                <label for="colFormLabelSm">Load vector (files)</label>
+                                <label for="colFormLabelSm">Load vector files</label>
                                 <input class="form-control mb-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
                             </div>
                             <div class="col-auto">
@@ -48,7 +48,7 @@
                     <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
                         <div class="form-row align-items-center">
                             <div class="col-auto">
-                                <label for="colFormLabelSm">Load vector (folder)</label>
+                                <label for="colFormLabelSm">Load vector folder</label>
                                 <input class="form-control mb-4" autofocus type="file" name="Shapefileparentdir" placeholder="shapefile and dependencies" webkitdirectory multiple>
                             </div>
                             <div class="col-auto">
@@ -72,7 +72,7 @@
                 </div>
             </div>
         </div>
-
+        <hr color="red" size="10">
         <div id="spectral">
             <p>Get Spectral Index</p>
         </div>
@@ -87,7 +87,7 @@
                 <div class="col-auto">
                     <!-- <label for="exampleInputEmail1">color palette</label> -->
                     <select class="form-control mb-1" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
-                        <option value="classifier">default</option>
+                        <option value="classifier">color palette (default)</option>
                         <option value="divergingBrBG">green brown</option>
                         <option value="Oranges">orange</option>
                         <option value="Greens">green</option>
@@ -114,7 +114,7 @@
         <button id="get_mei" type="button" class="btn btn-link">Get MEI</button>
 
         <button id="get_vigs" type="button" class="btn btn-link">Get VIGS</button>
-
+        <hr color="red" size="10">
         <div id="classif">
             <p>Image Classification</p>
         </div>

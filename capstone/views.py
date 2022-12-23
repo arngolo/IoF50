@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
-from .models import Imagery
+from .models import Imagery, SpectralIndex
 import ee, os, json
 import numpy as np
 # from rasterio import features, mask
@@ -110,7 +110,19 @@ def pixels_app(request):
                     image_update.spectral_index_name = spectral_index_name
                     image_update.spectral_index_equation = spectral_index_equation
                     image_update.spectral_index_color_palette = spectral_index_color_palette
-                    messages.success(request, 'spectral index request info saved')
+
+                    # save index name and color palette in spectral indices table
+                    if request.POST.get('SpectralIndexName') != "":
+                         try:
+                              index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=spectral_index_name)
+                              index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                              index_name_palette_save.save()
+                              messages.error(request, spectral_index_name + ' index already exists')
+                         except:
+                              index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=spectral_index_name, spectral_index_color_palette=spectral_index_color_palette)
+                              index_name_palette_save.save()
+                         messages.success(request, 'spectral index request info saved')
+
                except Exception as Err:
                     messages.error(request, Err)
 
@@ -271,7 +283,6 @@ def pixels_app(request):
                          spectral_index = get_bands(mission, band_arrays, spectral_index_equation)
                          # save normalized_index index
                          output = project_directory + '/media/output_images/' + spectral_index_name + '.tif'
-                    #      color_text = "get color text from form"
                          color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                          save_spectral_index(spectral_index, output, metadata)
 
@@ -281,9 +292,17 @@ def pixels_app(request):
                               vigs_indx = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
                               # save vigs index
                               output = project_directory + '/media/output_images/vigs.tif'
-                              # color_text = "get color text from form"
                               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                               save_spectral_index(vigs_indx, output, metadata)
+                              try:
+                                   index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
+                                   index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                                   index_name_palette_save.save()
+                                   messages.error(request, 'vigs ' + ' index already exists')
+                              except:
+                                   index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
+                                   index_name_palette_save.save()
+                              messages.success(request, 'vigs request info saved')
                          else:
                               messages.error(request, 'vigs index is exclusiv for landsat data')
                               return HttpResponseRedirect(reverse("index"))
@@ -294,9 +313,17 @@ def pixels_app(request):
                               mei_indx = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
                               # save mei index
                               output = project_directory + '/media/output_images/mei.tif'
-                              # color_text = "get color text from form"
                               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
                               save_spectral_index(mei_indx, output, metadata)
+                              try:
+                                   index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
+                                   index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                                   index_name_palette_save.save()
+                                   messages.error(request, 'mei ' + ' index already exists')
+                              except:
+                                   index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
+                                   index_name_palette_save.save()
+                              messages.success(request, 'mei request info saved')
                          else:
                               messages.error(request, 'mei index is exclusiv for landsat data')
                               return HttpResponseRedirect(reverse("index"))
@@ -346,3 +373,10 @@ def pixels_app(request):
           messages.success(request, 'map generated successfully')
 
      return HttpResponseRedirect(reverse("index"))
+
+def spectral_info(request):
+     if request.method == "GET":
+          infos = SpectralIndex.objects.all()
+          infos = [image for image in infos.all()] ## all images
+          # print(images)
+          return JsonResponse([info.serialize() for info in infos], safe=False)
