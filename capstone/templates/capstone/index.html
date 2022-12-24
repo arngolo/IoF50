@@ -28,134 +28,127 @@
         </div>
     </div>
     <div id="control_panel">
-        <hr color="red" size="10">
+
+        <hr color="white" size="10">
+
         <div id="load_vector_image" class="container">
+            <p>Load Data</p>
             <div class="row">
-                <div class="col">
-                    <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
-                        <div class="form-row align-items-center">
-                            <div class="col-auto">
-                                <label for="colFormLabelSm">Load vector files</label>
-                                <input class="form-control mb-4" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
-                            </div>
-                            <div class="col-auto">
-                                <input class="btn btn-primary" type="submit" value="Submit">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="col">
-                    <form action="{% url 'pixels' %}" class="form row" method="post" enctype="multipart/form-data">
-                        <div class="form-row align-items-center">
-                            <div class="col-auto">
-                                <label for="colFormLabelSm">Load vector folder</label>
-                                <input class="form-control mb-4" autofocus type="file" name="Shapefileparentdir" placeholder="shapefile and dependencies" webkitdirectory multiple>
-                            </div>
-                            <div class="col-auto">
-                                <input class="btn btn-primary" type="submit" value="Submit">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="col">
-                    <form action="{% url 'pixels' %}" class="form row" method="post" id="b">
-                        <div class="form-row align-items-center">
-                            <div class="col-auto">
-                                <label for="colFormLabelSm">Load satellite image</label>
-                                <input class="form-control mb-4" autofocus type="text" name="SatelliteImage" placeholder="Landsat ID">
-                            </div>
-                            <div class="col-auto">
-                                <input class="btn btn-primary" type="submit" value="Submit">
-                            </div>
-                        </div>
-                    </form>
-                </div>
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" enctype="multipart/form-data">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" enctype="multipart/form-data">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus type="file" name="Shapefileparentdir" placeholder="shapefile and dependencies" webkitdirectory multiple>
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" id="b">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus size="22" type="text" name="SatelliteImage" placeholder="Landsat ID">
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
             </div>
         </div>
-        <hr color="red" size="10">
-        <div id="spectral">
+
+        <hr color="white" size="10">
+
+        <div id="spectral_index" class="container">
             <p>Get Spectral Index</p>
-        </div>
-        <form id="spectral" action="{% url 'pixels' %}" method="post">
-            <div class="form-row align-items-center">
-                <div class="col-auto">
-                    <input class="form-control mb-1" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
-                </div>
-                <div class="col-auto">
-                    <input class="form-control mb-1" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
-                </div>
-                <div class="col-auto">
-                    <!-- <label for="exampleInputEmail1">color palette</label> -->
-                    <select class="form-control mb-1" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
-                        <option value="classifier">color palette (default)</option>
-                        <option value="divergingBrBG">green brown</option>
-                        <option value="Oranges">orange</option>
-                        <option value="Greens">green</option>
-                        <option value="Blues">blue</option>
-                        <option value="Reds">red</option>
-                        <option value="OrRd">orange_red</option>
-                        <option value="Rainbow">rainbow</option>
-                        <option value="Viridis">viridis</option>
-                        <option value="Turbo">turbo</option>
-                        <option value="divergingPRGn">purple green</option>
-                        <!-- <option value="orange_green">orange_green</option> -->
-                        <!-- <option value="bygor">rgb</option> -->
-
-
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <input class="btn btn-primary" type="submit" value="Submit">
-                </div>
+            <div class="row">
+                <form id="spectral" action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <div class="col-auto"> -->
+                        <input class="form-control" autofocus size="20" type="text" name="SpectralIndexName" placeholder="spectral index name">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                            <input class="form-control" autofocus size="74" type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">color palette</label> -->
+                        <select class="form-control" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
+                            <option value="classifier">color palette (default)</option>
+                            <option value="divergingBrBG">green brown</option>
+                            <option value="Oranges">orange</option>
+                            <option value="Greens">green</option>
+                            <option value="Blues">blue</option>
+                            <option value="Reds">red</option>
+                            <option value="OrRd">orange_red</option>
+                            <option value="Rainbow">rainbow</option>
+                            <option value="Viridis">viridis</option>
+                            <option value="Turbo">turbo</option>
+                            <option value="divergingPRGn">purple green</option>
+                            <!-- <option value="orange_green">orange_green</option> -->
+                            <!-- <option value="bygor">rgb</option> -->
+                        </select>
+                    </div>
+                        <!-- <div class="col-auto">
+                            <input class="btn btn-primary" type="submit" value="Submit">
+                        </div> -->
+                        <button type="submit" class="btn btn-secondary mb-2">Submit</button>
+                    <!-- </div> -->
+                </form>
             </div>
-        </form>
-        <button id="get_spectral_index" type="button" class="btn btn-link">Get Spectral Index</button>
+            <div class="row">
+                <button id="get_spectral_index" type="button" class="btn btn-link">Get Spectral Index</button>
 
-        <button id="get_mei" type="button" class="btn btn-link">Get MEI</button>
+                <button id="get_mei" type="button" class="btn btn-link">Get MEI</button>
 
-        <button id="get_vigs" type="button" class="btn btn-link">Get VIGS</button>
-        <hr color="red" size="10">
-        <div id="classif">
-            <p>Image Classification</p>
+                <button id="get_vigs" type="button" class="btn btn-link">Get VIGS</button>
+            </div>
         </div>
 
-        <form id="classifier_param" action="{% url 'pixels' %}" method="post">
-            <div class="form-row align-items-center">
-                    <!-- add later a pop-up menu that shows up if the spectral index is not present in local and suggest to create 1 using the get_spectral_index function-->
-                    <div class="col-auto">
-                        <label for="exampleInputEmail1">band list</label>
-                        <input class="form-control mb-4" id="inlineFormInput" type="text" name="BandStackList" placeholder="e.g.: B1, B2, ndvi">
+        <hr color="white" size="10">
+
+        <div id="image_classif" class="container">
+            <p>Image Classification</p>
+            <div class="row">
+                <form id="classifier_param" action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">band list</label> -->
+                        <input class="form-control" type="text" name="BandStackList" placeholder="band list (e.g.: ndvi, B1,....)">
                     </div>
-                    <div class="col-auto">
-                    <label for="exampleInputEmail1">number of clusters</label>
-                    <input class="form-control mb-4" id="inlineFormInput" type="text" name="KValue" placeholder="k value">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">number of clusters</label> -->
+                        <input class="form-control" type="text" name="KValue" placeholder="n of clusters (k value)">
                     </div>
-                    <div class="col-auto">
-                    <label for="exampleInputEmail1">number of subdimensions (pqk-means)</label>
-                    <input class="form-control mb-4" id="inlineFormInput" type="text" name="NumSubdim">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">number of subdimensions (pqk-means)</label> -->
+                        <input class="form-control" type="text" name="NumSubdim" placeholder="n of subdim (pqk-means)">
                     </div>
-                    <div class="col-auto">
-                        <label for="exampleInputEmail1">Ks value (pqk-means)</label>
-                        <select class="form-control mb-4" id="inlineFormInput" name="Ks">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">Ks value (pqk-means)</label> -->
+                        <select class="form-control" name="Ks">
+                            <option value="" disabled selected hidden>Ks value (pqk-means)</option>
                             <option value="4">2bits</option>
                             <option value="16">4bits</option>
                             <option value="256">8bits</option>
                             <option value="65536">16bits</option>
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <label for="exampleInputEmail1">sample size (pqk-means)</label>
-                        <input class="form-control mb-4" autofocus type="text" name="SampleSize">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">sample size (pqk-means)</label> -->
+                        <input class="form-control" autofocus type="text" name="SampleSize" placeholder="sample size (pqk-means)">
                     </div>
-                    <div class="col-auto">
-                        <input class="btn btn-primary" type="submit" value="Submit">
-                    </div>
+
+                    <button id="bt_icon" type="submit" class="btn btn-warning mb-2"></button>
+                </form>
             </div>
-        </form>
-
-        <button id="get_pqkmeans" type="button" class="btn btn-link">pqk-means</button>
-
-        <button id="get_kmeans" type="button" class="btn btn-link">k-means</button>
+            <div class="row">
+                <button id="get_pqkmeans" type="button" class="btn btn-link">Get pqk-means</button>
+                <button id="get_kmeans" type="button" class="btn btn-link">Get k-means</button>
+            </div>
+        </div>
+        <hr color="white" size="10">
+    <div>by: arms-xclusiv
     </div>
 
 </div>
