@@ -1,7 +1,8 @@
 nv 0 0 0 0
-1 blue
-2 yellow
-3 green
-4 orange
-5 red
-6 white
+1 blue 255
+2 yellow 255
+3 green 255
+4 orange 255
+5 red 255
+6 white 255
+7 cyan 255

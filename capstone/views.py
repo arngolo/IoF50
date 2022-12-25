@@ -47,7 +47,7 @@ def pixels_app(request):
      if request.method == "GET":
           database = Imagery.objects.all()
           images = [image for image in database.all()] ## all images
-          # print(images)
+          print(images)
           return JsonResponse([image.serialize() for image in images], safe=False)
      
      elif request.method == "POST":
@@ -335,7 +335,7 @@ def pixels_app(request):
                          Ks = int(ks_value)
                          sample_size = int(sample_size)
                          output = project_directory + '/media/output_images/map_pqkmeans.tif'
-                         color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
+                         color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
                          band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
                          if num_bands != len(band_stack_list.split(",")):
                               messages.error(request, 'Band or index not present. Please update band list')
@@ -346,7 +346,7 @@ def pixels_app(request):
                          name = "lulc_kmeans"
                          k = int(k_value)
                          output = project_directory + '/media/output_images/map_kmeans.tif'
-                         color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
+                         color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
                          band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
                          print("num_bands: ", num_bands)
                          print("band_stack_list: ", len(band_stack_list.split(",")))
