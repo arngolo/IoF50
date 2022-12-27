@@ -122,7 +122,7 @@ def get_bands(mission, band_arrays, spectral_index_equation = None):
 
     return bands
 
-def get_band_stack(bands, stack_list_string, project_directory):
+def get_band_stack(stack_list_string, project_directory):
     stack = []
     band_count_validation = 0
     stack_list = stack_list_string.split(",")
@@ -130,22 +130,24 @@ def get_band_stack(bands, stack_list_string, project_directory):
     for i in stack_list:
         i = i.replace(" ", "")
         print("band name: ", i)
-        if len(i) < 3 or i == "B8A":
-            print("band length: ", len(i))
-            band_count_validation+=1
-            stack.append(bands[i])
-        else:
-            print("band length: ", len(i))
-            for j in os.listdir(project_directory + '/media/output_images'):
-                if j.endswith('.tif') and "colored" not in j:
-                    print(j)
-                    if i == j.split(".tif")[0]:
-                        spectral_index = rasterio.open(project_directory + '/media/output_images/' + j).read(1)
-                        spectral_index = np.ma.masked_values(spectral_index, 0)
-                        stack.append(spectral_index)
-                        band_count_validation+=1
+        # if len(i) < 3 or i == "B8A":
+        #     print("band length: ", len(i))
+        #     band_count_validation+=1
+        #     stack.append(bands[i])
+        # else:
+        print("band length: ", len(i))
+        for j in os.listdir(project_directory + '/media/output_images'):
+            if j.endswith('.tif') and "colored" not in j:
+                print(j)
+                if i == j.split(".tif")[0]:
+                    spectral_index = rasterio.open(project_directory + '/media/output_images/' + j)
+                    crs = spectral_index.crs
+                    transform = spectral_index.transform
+                    spectral_index = np.ma.masked_values(spectral_index.read(1), 0)
+                    stack.append(spectral_index)
+                    band_count_validation+=1
 
-    return stack, band_count_validation
+    return stack, band_count_validation, crs, transform
 
 def mosaic(index, output, meta_out):
     tmp_output = output.split(".")[0] + "_backup.tif"
