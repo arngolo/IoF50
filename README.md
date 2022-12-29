@@ -2,22 +2,15 @@
 Primarily devised for Geospatial technology users, this website allows spatial analysis on the fly using GEE python API. It reduces user's computational costs, is memory efficient and users do not require a high storage capacity since the output result is primarely stored in local then uploaded to google cloud storage (GCS). 
 
 ## requirements
-python3.7 (create a virtual env with python 3.7)
-
 ### windows
-pip install requirements.txt (windows amd 64 bits.)
+python3.7 (create a virtual env with python 3.7).
+pip install requirements.txt (windows amd 64 bits.).
 [Microsoft Build Tolls](https://www.microsoft.com/en-us/download/details.aspx?id=48159) for pqkmeans installation. 2015 version used in this project. Try a recent version.
 ### Mac
-pip install django
-pip install earthengine-api --upgrade
-pip install pandas
-pip install rasterio
-scikit_learn
-pip install pqkmeans
-pyshp
-pip install gdal2tiles
-pip install google-cloud-storage
-pip install pyproj
+python3.7 (create a conda env with python 3.7).
+conda install -c conda-forge libgdal
+conda install -c conda-forge gdal
+pip install requirements_mac.txt
 
 ## GEE python authentication
 
