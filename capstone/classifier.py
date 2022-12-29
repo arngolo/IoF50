@@ -70,9 +70,9 @@ def PQKMeansGen(bands_array, output, k, num_subdim, Ks, sample_size, metadata):
 
     # get labels for pqkmeans legend and update in database
     pqkmeans_labels = list(np.unique(im))
-    print("unique", pqkmeans_labels)
+    print("unique", pqkmeans_labels[1:])
     image_update = Imagery.objects.get(pk=1)
-    image_update.pqkmeans_labels = str(pqkmeans_labels)
+    image_update.pqkmeans_labels = str(pqkmeans_labels[1:]) # removes the first element of the list which is a nodata value
     image_update.save()
 
     ##### Save after classification
@@ -134,9 +134,9 @@ def KMeansGen(bands_array, output, k, metadata):
 
     # get labels for kmeans legend and update in database
     kmeans_labels = list(np.unique(im))
-    print("unique", kmeans_labels)
+    print("unique", kmeans_labels[1:])
     image_update = Imagery.objects.get(pk=1)
-    image_update.kmeans_labels = kmeans_labels
+    image_update.kmeans_labels = kmeans_labels[1:]
     image_update.save()
 
     ##### Save after classification
