@@ -7,10 +7,11 @@ python3.7 (create a virtual env with python 3.7).
 pip install requirements.txt (windows amd 64 bits.).
 [Microsoft Build Tolls](https://www.microsoft.com/en-us/download/details.aspx?id=48159) for pqkmeans installation. 2015 version used in this project. Try a recent version.
 ### Mac
-python3.7 (create a conda env with python 3.7).
-conda install -c conda-forge libgdal
-conda install -c conda-forge gdal
-pip install requirements_mac.txt
+brew install cmake
+python3.7 (create a conda env with python 3.7):
+- conda install -c conda-forge libgdal
+- conda install -c conda-forge gdal
+- pip install requirements_mac.txt
 
 ## GEE python authentication
 
@@ -63,3 +64,9 @@ For spectral index calculator, make sure you understand the satellite image spec
 - **Ks:**  represents the maximum digital number. By default it is 256 that corresponds to 8 bits.
 
 - **sample_size:** The number of pixels you select for quantization.
+
+## ToDo
+- Clear database. Clear output images from local.
+- Check GCS's bucket/object content (spectral indices) and update in database (SpectralIndex table).
+- Ask to save output image somewhere else before a new image is classified.
+- Fix warning message on put request (currently requires page refresh).

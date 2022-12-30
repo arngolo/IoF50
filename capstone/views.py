@@ -368,10 +368,6 @@ def pixels_app(request):
                     return HttpResponseRedirect(reverse("index"))
                KMeansGen(band_stack, output, k, metadata)
 
-          else:
-               messages.success(request, 'please check your classification method')
-               return HttpResponseRedirect(reverse("index"))
-
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"
           os.system(CMD)
