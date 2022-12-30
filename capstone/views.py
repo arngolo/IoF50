@@ -115,13 +115,13 @@ def pixels_app(request):
                     if request.POST.get('SpectralIndexName') != "":
                          try:
                               index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=spectral_index_name)
-                              index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
-                              index_name_palette_save.save()
+                              # index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                              # index_name_palette_save.save()
                               messages.error(request, spectral_index_name + ' index already exists')
                          except:
                               index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=spectral_index_name, spectral_index_color_palette=spectral_index_color_palette)
                               index_name_palette_save.save()
-                         messages.success(request, 'spectral index request info saved')
+                              messages.success(request, 'spectral index request info saved')
 
                except Exception as Err:
                     messages.error(request, Err)
@@ -157,6 +157,16 @@ def pixels_app(request):
                     messages.success(request, 'classifier parameters saved')
                except Exception as Err:
                     messages.error(request, Err)
+
+          elif request.POST.get('clear_index', False):
+               try:
+                    index_name = request.POST['clear_index']
+                    clear_index = SpectralIndex.objects.get(spectral_index_name=index_name)
+                    clear_index.delete()
+                    messages.success(request, index_name + ' index deleted from database')
+               except Exception as Err:
+                    messages.error(request, Err)
+
 
           else:
                messages.error(request, 'no request. requests are: load shapfile, insert image ID, calculate spectral index, calculate custom spectral index and classify image')

@@ -29,9 +29,6 @@
     </div>
     <div id="control_panel">
 
-        <!-- <div class="d-flex justify-content-center flex-nowrap">
-            <button id="clear_database" type="button" class="btn btn-secondary">clear data</button>
-        </div> -->
         <hr color="white" size="10">
 
         <div id="load_vector_image" class="container">
@@ -147,6 +144,17 @@
             </div>
         </div>
         <hr color="white" size="10">
+
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <form action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus size="22" type="text" name="clear_index" placeholder="Type spectral index">
+                    </div>
+                    <button type="submit" class="btn btn-danger mb-2">delete index</button>
+                </form>
+            </div>
+        </div>
 
     <div>
         by: arms-xclusiv
