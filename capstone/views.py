@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import Imagery, SpectralIndex
 import ee, os, json
-import numpy as np
+# import numpy as np
 # from rasterio import features, mask
 from django.views.decorators.csrf import csrf_exempt
 # import geopandas as gpd
@@ -47,7 +47,7 @@ def pixels_app(request):
      if request.method == "GET":
           database = Imagery.objects.all()
           images = [image for image in database.all()] ## all images
-          print(images)
+          # print(images)
           return JsonResponse([image.serialize() for image in images], safe=False)
      
      elif request.method == "POST":
@@ -115,13 +115,13 @@ def pixels_app(request):
                     if request.POST.get('SpectralIndexName') != "":
                          try:
                               index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=spectral_index_name)
-                              index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
-                              index_name_palette_save.save()
+                              # index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                              # index_name_palette_save.save()
                               messages.error(request, spectral_index_name + ' index already exists')
                          except:
                               index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=spectral_index_name, spectral_index_color_palette=spectral_index_color_palette)
                               index_name_palette_save.save()
-                         messages.success(request, 'spectral index request info saved')
+                              messages.success(request, 'spectral index request info saved')
 
                except Exception as Err:
                     messages.error(request, Err)
@@ -157,6 +157,16 @@ def pixels_app(request):
                     messages.success(request, 'classifier parameters saved')
                except Exception as Err:
                     messages.error(request, Err)
+
+          elif request.POST.get('clear_index', False):
+               try:
+                    index_name = request.POST['clear_index']
+                    clear_index = SpectralIndex.objects.get(spectral_index_name=index_name)
+                    clear_index.delete()
+                    messages.success(request, index_name + ' index deleted from database')
+               except Exception as Err:
+                    messages.error(request, Err)
+
 
           else:
                messages.error(request, 'no request. requests are: load shapfile, insert image ID, calculate spectral index, calculate custom spectral index and classify image')
@@ -217,147 +227,158 @@ def pixels_app(request):
           # get unique (first ) shapefile parent directory
           vector_parent_dir = os.path.dirname(vector_path)
 
-          # iterate over shapefile parent directory to perform imagery in all related shapfiles
-          for vector in os.listdir(vector_parent_dir):
-               if vector.endswith(".shp"):
-                    vector_path = os.path.join(vector_parent_dir, vector)
-                    print("VECTOR PATH", vector_path)
-                    # from shapefile to json
-                    try:
-                         data = shp_to_json(vector_path)
-                    except Exception as Err:
-                         messages.error(request, Err)
-                         return HttpResponseRedirect(reverse("index"))
-                    # print(data)
+          if not pqkmeans and not kmeans:
+               # iterate over shapefile parent directory to perform imagery in all related
+               for vector in os.listdir(vector_parent_dir):
+                    if vector.endswith(".shp"):
+                         vector_path = os.path.join(vector_parent_dir, vector)
+                         print("VECTOR PATH", vector_path)
+                         # from shapefile to json
+                         try:
+                              data = shp_to_json(vector_path)
+                         except Exception as Err:
+                              messages.error(request, Err)
+                              return HttpResponseRedirect(reverse("index"))
+                         # print(data)
 
-                    coordinates_list = data['geometry']['coordinates']
-                    geometry_json = ee.Geometry.MultiPolygon(coordinates_list, None, False)
+                         coordinates_list = data['geometry']['coordinates']
+                         geometry_json = ee.Geometry.MultiPolygon(coordinates_list, None, False)
 
-                    # get image, clip to the extent of the vector and mask its pixel values
-                    image = ee.Image(image_name)
+                         # get image, clip to the extent of the vector and mask its pixel values
+                         image = ee.Image(image_name)
+                         image = ee.Algorithms.Landsat.TOA(image) # Top of Atmosphere correction
+                         image = ee.Algorithms.Landsat.calibratedRadiance(image) # Radiometric calibration
 
-                    # cliping
-                    mask = image.clip(geometry_json).mask()
-                    ## masking
-                    masked_image = image.updateMask(mask)
+                         # cliping
+                         mask = image.clip(geometry_json).mask()
+                         ## masking
+                         masked_image = image.updateMask(mask)
 
-                    # get masked image bounds
-                    bounds = image.select("B2").mask().gt(0).selfMask().addBands(1).reduceToVectors(reducer= ee.Reducer.first(), geometry = geometry_json, scale= 30, geometryType= "bb")
+                         # get masked image bounds
+                         bounds = image.select("B2").mask().gt(0).selfMask().addBands(1).reduceToVectors(reducer= ee.Reducer.first(), geometry = geometry_json, scale= 30, geometryType= "bb")
 
-                    # pixels to numpy arrays: to sample the pixels from the satellite image (number of pixels must be <= 262144):
-                    band_arrays = masked_image.sampleRectangle(region=bounds, defaultValue=0)
-                    try:
-                         bands = get_bands(mission, band_arrays)
-                    except Exception as Err:
-                         messages.error(request, Err)
-                         return HttpResponseRedirect(reverse("index"))
-                    # IMAGE METADATA
-                    image_info=image.getInfo()
-                    crs = image_info["bands"][0]["crs"]
-                    crs_transform = image_info["bands"][0]["crs_transform"]
-                    # get top(north), left(west) bounds of the masked image
-                    bbox = bounds.getInfo()["features"][0]["geometry"]["coordinates"][0]
-                    west = bbox[0][0]
-                    north = bbox[2][1]
-                    # convert from decimal to UTM
-                    myProj = Proj(crs)
-                    left,top = myProj(west, north)
-                    print("left bound: ", left, "\n", "top bound: ", top)
-                    # affine transformation in the following format: (scale, shear, translation, scale, shear, translation)
-                    affine_transform = Affine(crs_transform[0], crs_transform[1], left, crs_transform[3], crs_transform[4], top)
-                    if mission == "sentinel":
-                         affine_transform = Affine(10, crs_transform[1], left, crs_transform[3], -10, top)
+                         # pixels to numpy arrays: to sample the pixels from the satellite image (number of pixels must be <= 262144):
+                         band_arrays = masked_image.sampleRectangle(region=bounds, defaultValue=0)
+                         try:
+                              bands = get_bands(mission, band_arrays)
+                         except Exception as Err:
+                              messages.error(request, Err)
+                              return HttpResponseRedirect(reverse("index"))
+                         # IMAGE METADATA
+                         image_info=image.getInfo()
+                         crs = image_info["bands"][0]["crs"]
+                         crs_transform = image_info["bands"][0]["crs_transform"]
+                         # get top(north), left(west) bounds of the masked image
+                         bbox = bounds.getInfo()["features"][0]["geometry"]["coordinates"][0]
+                         west = bbox[0][0]
+                         north = bbox[2][1]
+                         # convert from decimal to UTM
+                         myProj = Proj(crs)
+                         left,top = myProj(west, north)
+                         print("left bound: ", left, "\n", "top bound: ", top)
+                         # affine transformation in the following format: (scale, shear, translation, scale, shear, translation)
+                         affine_transform = Affine(crs_transform[0], crs_transform[1], left, crs_transform[3], crs_transform[4], top)
+                         if mission == "sentinel":
+                              affine_transform = Affine(10, crs_transform[1], left, crs_transform[3], -10, top)
 
-                    print("Affine Transformation: ", affine_transform)
-                    # custom metadata
-                    metadata = get_metadata(bands["B2"], crs, affine_transform)
+                         print("Affine Transformation: ", affine_transform)
+                         # custom metadata
+                         metadata = get_metadata(bands["B2"], crs, affine_transform)
 
-                    # images output directory
-                    output = project_directory + '/media/output_images'
-                    if not os.path.exists(output):
-                         os.mkdir(output)
+                         # images output directory
+                         output = project_directory + '/media/output_images'
+                         if not os.path.exists(output):
+                              os.mkdir(output)
 
-                    if spectral_index_name and spectral_index_equation:
-                         name = spectral_index_name
-                         #get_bands function also gets spectral index
-                         spectral_index = get_bands(mission, band_arrays, spectral_index_equation)
-                         # save normalized_index index
-                         output = project_directory + '/media/output_images/' + spectral_index_name + '.tif'
-                         color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-                         save_spectral_index(spectral_index, output, metadata)
-
-                    elif vigs:
-                         if mission == "landsat":
-                              name = "vigs"
-                              vigs_indx = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
-                              # save vigs index
-                              output = project_directory + '/media/output_images/vigs.tif'
+                         if spectral_index_name and spectral_index_equation:
+                              name = spectral_index_name
+                              #get_bands function also gets spectral index
+                              spectral_index = get_bands(mission, band_arrays, spectral_index_equation)
+                              # save normalized_index index
+                              output = project_directory + '/media/output_images/' + spectral_index_name + '.tif'
                               color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-                              save_spectral_index(vigs_indx, output, metadata)
-                              try:
-                                   index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
-                                   index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
-                                   index_name_palette_save.save()
-                                   messages.error(request, 'vigs ' + ' index already exists')
-                              except:
-                                   index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
-                                   index_name_palette_save.save()
-                              messages.success(request, 'vigs request info saved')
-                         else:
-                              messages.error(request, 'vigs index is exclusiv for landsat data')
-                              return HttpResponseRedirect(reverse("index"))
+                              save_spectral_index(spectral_index, output, metadata)
 
-                    elif mei:
-                         if mission == "landsat":
-                              name = "mei"
-                              mei_indx = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
-                              # save mei index
-                              output = project_directory + '/media/output_images/mei.tif'
-                              color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
-                              save_spectral_index(mei_indx, output, metadata)
-                              try:
-                                   index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
-                                   index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
-                                   index_name_palette_save.save()
-                                   messages.error(request, 'mei ' + ' index already exists')
-                              except:
-                                   index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
-                                   index_name_palette_save.save()
-                              messages.success(request, 'mei request info saved')
-                         else:
-                              messages.error(request, 'mei index is exclusiv for landsat data')
-                              return HttpResponseRedirect(reverse("index"))
+                         elif vigs:
+                              if mission == "landsat":
+                                   name = "vigs"
+                                   vigs_indx = vigs_index(bands["B3"], bands["B4"], bands["B5"], bands["B6"], bands["B7"])
+                                   # save vigs index
+                                   output = project_directory + '/media/output_images/vigs.tif'
+                                   color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
+                                   save_spectral_index(vigs_indx, output, metadata)
+                                   try:
+                                        index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
+                                        index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                                        index_name_palette_save.save()
+                                        messages.error(request, 'vigs ' + ' index already exists')
+                                   except:
+                                        index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
+                                        index_name_palette_save.save()
+                                   messages.success(request, 'vigs request info saved')
+                              else:
+                                   messages.error(request, 'vigs index is exclusiv for landsat data')
+                                   return HttpResponseRedirect(reverse("index"))
 
-                    elif pqkmeans and band_stack_list:
-                         name = "lulc_pqkmeans"
-                         k = int(k_value)
-                         num_subdim = int(num_subdimensions)
-                         Ks = int(ks_value)
-                         sample_size = int(sample_size)
-                         output = project_directory + '/media/output_images/map_pqkmeans.tif'
-                         color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
-                         band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
-                         if num_bands != len(band_stack_list.split(",")):
-                              messages.error(request, 'Band or index not present. Please update band list')
-                              return HttpResponseRedirect(reverse("index"))
-                         PQKMeansGen(band_stack, output, k, num_subdim, Ks, sample_size, metadata)
+                         elif mei:
+                              if mission == "landsat":
+                                   name = "mei"
+                                   mei_indx = moisture_enhanced_index(bands["B1"], bands["B3"], bands["B5"], bands["B6"])
+                                   # save mei index
+                                   output = project_directory + '/media/output_images/mei.tif'
+                                   color_text = project_directory + '/media/palette_color_text/color_text_file_' + spectral_index_color_palette + '.txt'
+                                   save_spectral_index(mei_indx, output, metadata)
+                                   try:
+                                        index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=name)
+                                        index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                                        index_name_palette_save.save()
+                                        messages.error(request, 'mei ' + ' index already exists')
+                                   except:
+                                        index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=name, spectral_index_color_palette=spectral_index_color_palette)
+                                        index_name_palette_save.save()
+                                   messages.success(request, 'mei request info saved')
+                              else:
+                                   messages.error(request, 'mei index is exclusiv for landsat data')
+                                   return HttpResponseRedirect(reverse("index"))
 
-                    elif kmeans and band_stack_list:
-                         name = "lulc_kmeans"
-                         k = int(k_value)
-                         output = project_directory + '/media/output_images/map_kmeans.tif'
-                         color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
-                         band_stack, num_bands = get_band_stack(bands, band_stack_list, project_directory)
-                         print("num_bands: ", num_bands)
-                         print("band_stack_list: ", len(band_stack_list.split(",")))
-                         if num_bands != len(band_stack_list.split(",")):
-                              messages.error(request, 'Band or index not present. Please update band list')
-                              return HttpResponseRedirect(reverse("index"))
-                         KMeansGen(band_stack, output, k, metadata)
+                         # else:
+                         #      messages.success(request, 'please check your spectral index calculation')
+                         #      return HttpResponseRedirect(reverse("index"))
 
-                    else:
-                         messages.success(request, 'please check your spectral index calculation or classification method')
-                         return HttpResponseRedirect(reverse("index"))
+          if pqkmeans and band_stack_list:
+               name = "lulc_pqkmeans"
+               k = int(k_value)
+               num_subdim = int(num_subdimensions)
+               Ks = int(ks_value)
+               sample_size = int(sample_size)
+               output = project_directory + '/media/output_images/map_pqkmeans.tif'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
+               band_stack, num_bands, crs, transform = get_band_stack(band_stack_list, project_directory)
+               metadata = get_metadata(band_stack[0], crs, transform)
+               print("BAND STACK 0", band_stack[0])
+               print("meta crs: ",metadata['crs'])
+               print("meta transform: ",metadata['transform'])
+               if num_bands != len(band_stack_list.split(",")):
+                    messages.error(request, 'Band or index not present. Please update band list')
+                    return HttpResponseRedirect(reverse("index"))
+               PQKMeansGen(band_stack, output, k, num_subdim, Ks, sample_size, metadata)
+
+          elif kmeans and band_stack_list:
+               name = "lulc_kmeans"
+               k = int(k_value)
+               output = project_directory + '/media/output_images/map_kmeans.tif'
+               color_text = project_directory + '/media/palette_color_text/color_text_file_classifier.txt'
+               band_stack, num_bands, crs, transform = get_band_stack(band_stack_list, project_directory)
+               metadata = get_metadata(band_stack[0], crs, transform)
+               print("BAND STACK 0", band_stack[0])
+               print("meta crs: ",metadata['crs'])
+               print("meta transform: ",metadata['transform'])
+               print("num_bands: ", num_bands)
+               print("band_stack_list: ", len(band_stack_list.split(",")))
+               if num_bands != len(band_stack_list.split(",")):
+                    messages.error(request, 'Band or index not present. Please update band list')
+                    return HttpResponseRedirect(reverse("index"))
+               KMeansGen(band_stack, output, k, metadata)
 
           # grayscale to color ramp
           CMD = "gdaldem color-relief " + output + " " + color_text + " " + "-alpha" + " " + output.split(".")[0] + "_colored.tif"

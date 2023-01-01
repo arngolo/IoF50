@@ -2,26 +2,20 @@
 Primarily devised for Geospatial technology users, this website allows spatial analysis on the fly using GEE python API. It reduces user's computational costs, is memory efficient and users do not require a high storage capacity since the output result is primarely stored in local then uploaded to google cloud storage (GCS). 
 
 ## requirements
-python3.7 (create a virtual env with python 3.7)
-
 ### windows
-pip install requirements.txt (windows amd 64 bits.)
+python3.7 (create a virtual env with python 3.7).
+pip install requirements.txt (windows amd 64 bits).
 [Microsoft Build Tolls](https://www.microsoft.com/en-us/download/details.aspx?id=48159) for pqkmeans installation. 2015 version used in this project. Try a recent version.
 ### Mac
-pip install django
-pip install earthengine-api --upgrade
-pip install pandas
-pip install rasterio
-scikit_learn
-pip install pqkmeans
-pyshp
-pip install gdal2tiles
-pip install google-cloud-storage
-pip install pyproj
+brew install cmake
+python3.7 (create a conda env with python 3.7):
+- conda install -c conda-forge libgdal
+- conda install -c conda-forge gdal
+- pip install requirements_mac.txt
 
 ## GEE python authentication
 
-Create a service account (first create a google cloud project from the developer IDE (assets section)).
+Create a service account (first create a google cloud project from the developer IDE (assets section)):
 
 On the project name click the home button, select the cloud console menu > `IAM & admins` > service accounts > `create service account`.
 
@@ -70,3 +64,10 @@ For spectral index calculator, make sure you understand the satellite image spec
 - **Ks:**  represents the maximum digital number. By default it is 256 that corresponds to 8 bits.
 
 - **sample_size:** The number of pixels you select for quantization.
+
+## ToDo
+- Clear database. Clear output images from local.
+- Check GCS's bucket/object content (spectral indices) and update in database (SpectralIndex table).
+- Ask to save output image somewhere else before a new image is classified.
+- Fix warning message on put request (currently requires page refresh).
+- Explore Atmospheric correction and radiometric calibration for a better classification.
