@@ -47,7 +47,7 @@ def pixels_app(request):
      if request.method == "GET":
           database = Imagery.objects.all()
           images = [image for image in database.all()] ## all images
-          print(images)
+          # print(images)
           return JsonResponse([image.serialize() for image in images], safe=False)
      
      elif request.method == "POST":
@@ -246,6 +246,8 @@ def pixels_app(request):
 
                          # get image, clip to the extent of the vector and mask its pixel values
                          image = ee.Image(image_name)
+                         image = ee.Algorithms.Landsat.TOA(image) # Top of Atmosphere correction
+                         image = ee.Algorithms.Landsat.calibratedRadiance(image) # Radiometric calibration
 
                          # cliping
                          mask = image.clip(geometry_json).mask()
