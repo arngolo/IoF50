@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(overlaymaps);
     console.log(color_palettes);
 
+    // var w = window.innerWidth;
+    // var h = window.innerHeight;
+    // console.log("width: ",w, "height: ",h)
 
     L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 

@@ -1,5 +1,5 @@
 {
     "service_account":"arngolo2@ee-cs50w.iam.gserviceaccount.com",
     "private_key":"private-key.json",
-    "bucket_name":"IoF50"
+    "bucket_name":"iof50"
 }

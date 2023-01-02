@@ -4,14 +4,14 @@ Primarily devised for Geospatial technology users, this website allows spatial a
 ## requirements
 ### windows
 python3.7 (create a virtual env with python 3.7).
-pip install requirements.txt (windows amd 64 bits).
+pip install -r requirements.txt (windows amd 64 bits).
 [Microsoft Build Tolls](https://www.microsoft.com/en-us/download/details.aspx?id=48159) for pqkmeans installation. 2015 version used in this project. Try a recent version.
 ### Mac
 brew install cmake
 python3.7 (create a conda env with python 3.7):
 - conda install -c conda-forge libgdal
 - conda install -c conda-forge gdal
-- pip install requirements_mac.txt
+- pip install -r requirements_mac.txt
 
 ## GEE python authentication
 
@@ -23,7 +23,12 @@ Create and download a JSON private key file for the service account.
 
 ### To authenticate:
 - Place the private key in the root location of this project.
-- In the `authentication.json` file, add the service account and the private key file name.
+- From google cloud products choose storage and create a bucket to store your data. Give necessary permissions to your objects (public access): In the list of buckets, check the bucket box, click permissions:
+
+`add principals:` allUsers
+`assigned roles:` storage legacy bucket owner, reader; object owner, reader.
+
+- In the `authentication.json` file, add the service account, the private key file name and the bucket name.
 
 ## uplaod local 
 ### maptiles generation
