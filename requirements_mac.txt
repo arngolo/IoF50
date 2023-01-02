@@ -1,0 +1,11 @@
+numpy
+django
+earthengine-api
+pandas
+rasterio
+scikit_learn
+pqkmeans
+pyshp
+gdal2tiles
+google-cloud-storage
+pyproj

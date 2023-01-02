@@ -1,3 +1,6 @@
 .DS_Store
 db.sqlite3
-arngolo-88275ecdbaf6.json
+private-key.json
+media/output_images/
+media/shapefiles/
+pqcode.npy

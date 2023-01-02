@@ -1,0 +1,12 @@
+numpy
+django
+wheels/GDAL-3.4.2-cp37-cp37m-win_amd64.whl
+wheels/rasterio-1.2.10-cp37-cp37m-win_amd64.whl
+scikit_learn
+pqkmeans
+pandas
+earthengine-api
+pyshp
+gdal2tiles
+google-cloud-storage
+pyproj

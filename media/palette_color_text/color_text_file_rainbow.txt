@@ -1,0 +1,8 @@
+nv 0 0 0 0
+1 Red
+40 Orange
+80 Yellow
+120 Green
+160 Blue
+200 Indigo
+140 Violet

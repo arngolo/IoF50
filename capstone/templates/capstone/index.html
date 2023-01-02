@@ -2,17 +2,165 @@
 {% load static %}
 
 {% block body %}
-<h1>cs50x capstone project</h1>
-<div>
-    <!-- {% csrf_token %} -->
-    <button id="get_remote_image" type="button" class="btn btn-link">get remote image</button>
+
+<div class="content">
+    <div class="sticky-top">
+        <p id="panel">IoF50 Imagery on the Fly</p>
+    </div>
+    <div class="sticky-top">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="alert alert-{{ message.tags }} m-2"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <div id="map"></div>
+    <div class="row" id="legend">
+        <div class="col">
+            <div class="my_categorical_legend"></div>
+        </div>
+        <div class="col">
+            <div id="top_value"></div>
+            <div class="my_sequential_legend"></div>
+            <div id="bottom_value"></div>
+        </div>
+    </div>
+    <div id="control_panel">
+
+        <hr color="white" size="10">
+
+        <div id="load_vector_image" class="container">
+            <p>Load Data</p>
+            <div class="row">
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" enctype="multipart/form-data">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus type="file" name="ShapefileLocation" accept=".shp, .dbf, .sbn, .shx, .sbx, .prj" placeholder="shapefile and dependencies" multiple>
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" enctype="multipart/form-data">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus type="file" name="Shapefileparentdir" placeholder="shapefile and dependencies" webkitdirectory multiple>
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
+                <form action="{% url 'pixels' %}" class="form-inline" method="post" id="b">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus size="22" type="text" name="SatelliteImage" placeholder="Landsat ID">
+                    </div>
+                    <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+
+            </div>
+        </div>
+
+        <hr color="white" size="10">
+
+        <div id="spectral_index" class="container">
+            <p>Get Spectral Index</p>
+            <div class="row">
+                <form id="spectral" action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <div class="col-auto"> -->
+                        <input class="form-control" autofocus size="20" type="text" name="SpectralIndexName" placeholder="spectral index name">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                            <input class="form-control" autofocus size="74" type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">color palette</label> -->
+                        <select class="form-control" id="inlineFormInput" name="SpectralIndexColorPalette" placeholder="color palette">
+                            <option value="classifier">color palette (default)</option>
+                            <option value="divergingBrBG">green brown</option>
+                            <option value="Oranges">orange</option>
+                            <option value="Greens">green</option>
+                            <option value="Blues">blue</option>
+                            <option value="Reds">red</option>
+                            <option value="OrRd">orange_red</option>
+                            <option value="Rainbow">rainbow</option>
+                            <option value="Viridis">viridis</option>
+                            <option value="Turbo">turbo</option>
+                            <option value="divergingPRGn">purple green</option>
+                            <!-- <option value="orange_green">orange_green</option> -->
+                            <!-- <option value="bygor">rgb</option> -->
+                        </select>
+                    </div>
+                        <button type="submit" class="btn btn-info mb-2">Submit</button>
+                </form>
+            </div>
+            <div class="row">
+                <button id="get_spectral_index" type="button" class="btn btn-link">Get Spectral Index</button>
+
+                <button id="get_mei" type="button" class="btn btn-link">Get MEI</button>
+
+                <button id="get_vigs" type="button" class="btn btn-link">Get VIGS</button>
+            </div>
+        </div>
+
+        <hr color="white" size="10">
+
+        <div id="image_classif" class="container">
+            <p>Image Classification</p>
+            <div class="row">
+                <form id="classifier_param" action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">band list</label> -->
+                        <input class="form-control" type="text" name="BandStackList" placeholder="band list (e.g.: ndvi, B1,....)">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">number of clusters</label> -->
+                        <input class="form-control" type="text" name="KValue" placeholder="n of clusters (k value)">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">number of subdimensions (pqk-means)</label> -->
+                        <input class="form-control" type="text" name="NumSubdim" placeholder="n of subdim (pqk-means)">
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">Ks value (pqk-means)</label> -->
+                        <select class="form-control" name="Ks">
+                            <option value="" disabled selected hidden>Ks value (pqk-means)</option>
+                            <option value="4">2bits</option>
+                            <option value="16">4bits</option>
+                            <option value="256">8bits</option>
+                            <option value="65536">16bits</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-1 mb-2">
+                        <!-- <label for="exampleInputEmail1">sample size (pqk-means)</label> -->
+                        <input class="form-control" autofocus type="text" name="SampleSize" placeholder="sample size (pqk-means)">
+                    </div>
+
+                    <button id="bt_icon" type="submit" class="btn btn-warning mb-2"></button>
+                </form>
+            </div>
+            <div class="row">
+                <button id="get_pqkmeans" type="button" class="btn btn-link">Get pqk-means</button>
+                <button id="get_kmeans" type="button" class="btn btn-link">Get k-means</button>
+            </div>
+        </div>
+        <hr color="white" size="10">
+
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <form action="{% url 'pixels' %}" class="form-inline" method="post">
+                    <div class="form-group mx-sm-1 mb-2">
+                        <input class="form-control" autofocus size="22" type="text" name="clear_index" placeholder="Type spectral index">
+                    </div>
+                    <button type="submit" class="btn btn-danger mb-2">delete index</button>
+                </form>
+            </div>
+        </div>
+
+    <div>
+        by: arms-xclusiv
+    </div>
+
 </div>
-<!-- make the map here -->
-<!-- <div id="image"></div> -->
 
-{% endblock %}
 
-{% block script %}
-    <script src="{% static 'capstone/ee_api_js.js' %}"></script>
-    <script src="{% static 'capstone/index.js' %}"></script>
 {% endblock %}

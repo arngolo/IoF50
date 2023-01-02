@@ -1,0 +1,7 @@
+nv 0 0 0 0
+1 blue
+50 yellow
+100 green
+150 orange
+200 red
+250 white
