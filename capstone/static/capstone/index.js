@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    console.log("width: ",w, "height: ",h)
+
   var openStreetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'OpenStreetMap'
   });
@@ -26,34 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
   .then(response => response.json())
   .then(infos => {
     infos.forEach(index => {
-      indexLayer = L.tileLayer(`https://storage.googleapis.com/beyond_rgb/${index.spectral_index_name}/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
+
+      // custom spectral indices (overlay map)
+      indexLayer = L.tileLayer(`https://storage.googleapis.com/${index.bucket_name}/${index.spectral_index_name}/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
       overlaymaps[`${index.spectral_index_name}`] = indexLayer;
       color_palettes[`${index.spectral_index_name}`] = index.spectral_index_color_palette;
     })
-
-    meiLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/mei/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
-    vigsLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/vigs/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
-    lulcPqkmeansLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc_pqkmeans/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
-    lulcKmeansLayer = L.tileLayer('https://storage.googleapis.com/beyond_rgb/lulc_kmeans/{z}/{x}/{y}.png', {tms: true, opacity: 0.7, attribution: ""});
-
-    // Create the map with basemaps and custom layers
-    var map = L.map('map', {layers: [openStreetMap]}).setView([0, 0], 3);
-    var basemaps = {"Open Street Map": openStreetMap, "Open Topo Map": openTopoMap, "Imagery": satelliteImage, "Night Light": night_light}
-    // var overlaymaps = {"ndvi": ndviLayer, "mei": meiLayer, "vigs": vigsLayer, "lulc pqkmeans": lulcPqkmeansLayer, "lulc kmeans": lulcKmeansLayer}
-    overlaymaps["mei"] = meiLayer;
-    overlaymaps["vigs"] = vigsLayer;
-    overlaymaps["lulc pqkmeans"] = lulcPqkmeansLayer;
-    overlaymaps["lulc kmeans"] = lulcKmeansLayer;
-    console.log(overlaymaps);
-    console.log(color_palettes);
-
-    // var w = window.innerWidth;
-    // var h = window.innerHeight;
-    // console.log("width: ",w, "height: ",h)
-
-    L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
-
-    // create a global color palette
 
     fetch(`/pixels`)
     .then(response => response.json())
@@ -73,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const sample_size = image[0].sample_size;
       const pqkmeans_labels = image[0].pqkmeans_labels;
       const kmeans_labels = image[0].kmeans_labels;
+      const bucket_name = image[0].bucket_name;
 
       console.log(mei);
       console.log(vigs);
@@ -91,7 +74,29 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log(sample_size);
       console.log(pqkmeans_labels);
       console.log(kmeans_labels);
+      console.log(bucket_name);
 
+      // hard coded spectral indices and classified maps (overlay map)
+      meiLayer = L.tileLayer(`https://storage.googleapis.com/${bucket_name}/mei/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
+      vigsLayer = L.tileLayer(`https://storage.googleapis.com/${bucket_name}/vigs/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
+      lulcPqkmeansLayer = L.tileLayer(`https://storage.googleapis.com/${bucket_name}/lulc_pqkmeans/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
+      lulcKmeansLayer = L.tileLayer(`https://storage.googleapis.com/${bucket_name}/lulc_kmeans/{z}/{x}/{y}.png`, {tms: true, opacity: 0.7, attribution: ""});
+
+      // Create the map with basemaps and overlay maps
+      var map = L.map('map', {layers: [openStreetMap]}).setView([0, 0], 3);
+      var basemaps = {"Open Street Map": openStreetMap, "Open Topo Map": openTopoMap, "Imagery": satelliteImage, "Night Light": night_light}
+
+      // add hard coded spectral indices and classified maps to overlaymaps dictionary
+      overlaymaps["mei"] = meiLayer;
+      overlaymaps["vigs"] = vigsLayer;
+      overlaymaps["lulc pqkmeans"] = lulcPqkmeansLayer;
+      overlaymaps["lulc kmeans"] = lulcKmeansLayer;
+      console.log(overlaymaps);
+      console.log(color_palettes);
+
+      L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
+
+      // create a global map
       if (mei != "") {
         document.querySelector('#get_mei').addEventListener('click', () => get_mei(mei, spectral_index_color_palette));
       }

@@ -39,6 +39,12 @@ def index(request):
           image = Imagery()
           image.save()
 
+     image_update = Imagery.objects.get(pk=1)
+     bucket_name = authentication["bucket_name"]
+     print("BUCKET NAME :",bucket_name)
+     image_update.bucket_name = bucket_name
+     image_update.save()
+
      return render(request, 'capstone/index.html')
 
 @csrf_exempt
@@ -116,10 +122,11 @@ def pixels_app(request):
                          try:
                               index_name_palette_save = SpectralIndex.objects.get(spectral_index_name=spectral_index_name)
                               # index_name_palette_save.spectral_index_color_palette = spectral_index_color_palette
+                              # index_name_palette_save.bucket_name = authentication["bucket_name"]
                               # index_name_palette_save.save()
                               messages.error(request, spectral_index_name + ' index already exists')
                          except:
-                              index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=spectral_index_name, spectral_index_color_palette=spectral_index_color_palette)
+                              index_name_palette_save = SpectralIndex.objects.create(spectral_index_name=spectral_index_name, spectral_index_color_palette=spectral_index_color_palette, bucket_name = authentication["bucket_name"])
                               index_name_palette_save.save()
                               messages.success(request, 'spectral index request info saved')
 
