@@ -1,5 +1,6 @@
 # IoF50 (Imagery on the Fly)
-Primarily devised for Geospatial technology users, this website allows spatial analysis on the fly using GEE python API. It reduces user's computational costs, is memory efficient and users do not require a high storage capacity since the output result is primarely stored in local then uploaded to google cloud storage (GCS). 
+### Distinctiveness and Complexity
+Primarily devised for Geospatial technology users, this website allows spatial analysis on the fly using Google Earth Engine (GEE) python API. It reduces user's computational costs, is memory efficient and users do not require a high storage capacity since the output result is primarely stored in local then uploaded to Google Cloud Storage (GCS).
 
 ## requirements
 ### windows
@@ -39,6 +40,13 @@ gdal (`gdal2files`) is used to produce tiles stored in a `<maptiles_folder>` tha
 Generated maptiles for this project are hosted in google cloud storage, uploaded using the google-cloud-storage API (API different from earthengine-api, so, authentication process is different but using the same private-key). After uploading a maptile we can have access to it as layer by using the public url `https://storage.googleapis.com/<bucket_name>/<folder_name>/{z}/{x}/{y}.png`. 
 **Note:** Make sure to make your bucket and its objects (folders, files) public and set `owner` permissions for `allUsers` from google cloud storage.
 
+## other important directories
+`media/output_images` folder stores the output images generated during the analysis.
+`media/palette_color_text` folder contains the files used to create color palletes for spectral indices.
+`media/default_shapefiles` folder contains a dummy shapefile that is loaded once the database is created.
+`media/shapefiles` folder stores the uploaded shapefiles.
+`wheels` folder contains the python wheels to setup on windows environment.
+
 ## Usage
 ### Load area
 Global shapefiles (for area to be analised) can be downloaded from [Diva GIS](https://www.diva-gis.org/Data) at different levels and used as input.
@@ -53,7 +61,7 @@ Satellite images ID should follow the format: `LANDSAT/<mission>/<collection>/<t
 `LANDSAT/LC09/C02/T1/LC09_108030_20220909` (use with shapefile Sapporo)
 `COPERNICUS/S2_SR/20220805T012659_20220805T013242_T54TWN` (use with shapefile Sapporo)
 
-**Note:** GEE python API only accepts sampling <= 262144 pixels (the process of getting pixels from GEE cloud storage). For larger areas you might have to choose a shapefile with a higher level of administrative boundaries of your area of interest (`Sapporo for example in test_data folder`) or divide it into smaller pieces to meet the sampling requirements (`Lobito shapefile for example in test_data folder`).
+**Note:** GEE python API only `accepts sampling <= 262144 pixels` (the process of getting pixels from GEE cloud storage). For larger areas you might have to choose a shapefile with a higher level of administrative boundaries of your area of interest (`Sapporo for example in test_data folder`) or divide it into smaller pieces to meet the sampling requirements (`Lobito shapefile for example in test_data folder`).
 
 ## Get Spectral Index
 For spectral index calculator, make sure you understand the satellite image specs (Bands). Only NASA Landsat and ESA Sentinel2 images allowed).

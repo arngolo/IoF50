@@ -51,7 +51,7 @@
 
                 <form action="{% url 'pixels' %}" class="form-inline" method="post" id="b">
                     <div class="form-group mx-sm-1 mb-2">
-                        <input class="form-control" autofocus size="22" type="text" name="SatelliteImage" placeholder="Landsat ID">
+                        <input class="form-control" autofocus type="text" name="SatelliteImage" placeholder="Landsat ID">
                     </div>
                     <button type="submit" class="btn btn-info mb-2">Submit</button>
                 </form>
@@ -67,10 +67,10 @@
                 <form id="spectral" action="{% url 'pixels' %}" class="form-inline" method="post">
                     <div class="form-group mx-sm-1 mb-2">
                         <!-- <div class="col-auto"> -->
-                        <input class="form-control" autofocus size="20" type="text" name="SpectralIndexName" placeholder="spectral index name">
+                        <input class="form-control" autofocus type="text" name="SpectralIndexName" placeholder="spectral index name">
                     </div>
                     <div class="form-group mx-sm-1 mb-2">
-                            <input class="form-control" autofocus size="74" type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
+                            <input class="form-control" autofocus type="text" name="SpectralIndexEquation" placeholder="formula (bands range B1-B12; sentinel has b8A)">
                     </div>
                     <div class="form-group mx-sm-1 mb-2">
                         <!-- <label for="exampleInputEmail1">color palette</label> -->
@@ -149,7 +149,7 @@
             <div class="d-flex justify-content-center">
                 <form action="{% url 'pixels' %}" class="form-inline" method="post">
                     <div class="form-group mx-sm-1 mb-2">
-                        <input class="form-control" autofocus size="22" type="text" name="clear_index" placeholder="Type spectral index">
+                        <input class="form-control" autofocus type="text" name="clear_index" placeholder="Type spectral index">
                     </div>
                     <button type="submit" class="btn btn-danger mb-2">delete index</button>
                 </form>
