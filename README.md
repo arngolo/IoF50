@@ -7,7 +7,7 @@ Its complexity is based on the fact that it goes beyond what was taught in the c
 Integrating all these different technologies is a challenging task bacause it requires some specific environments to run in different OS, as well as customisation of open source code to achieve the goal of the original idea.
 
 ## directories/files content
-- `capstone`
+- **`capstone`**
   - `models.py` creates 2 tables: `Imagery`, to temporarily store all image and vector related information, and `SpectralIndex`, to permanentely store information about all created spectral indices.
   - `urls.py` contains 2 APIs urls: `pixels`, to expose data from Imagery table, and `spectral_info`, to expose data from SpectralIndex table.
   - `views.py` apart from GEE authentication lines of code, contains 3 views (functions): `index`, to create (if non-existent) or display the initial page, `pixels_app`, to perform image analisys through GET, POST and PUT requests, and `spectral_info`, to update SpectralIndex table.
@@ -15,22 +15,22 @@ Integrating all these different technologies is a challenging task bacause it re
   - `spectral_tools.py` a script with numerous pre-processing functions for satellite images such as, spectral index calculation, save spectral index, get image metadata, filter bands, image stack, image mosaic.  
   - `classifier.py` a script that contains 2 clustering algorithms: kmeans and a quantised version of kmeans: [pqkmeans](https://github.com/DwangoMediaVillage/pqkmeans).  
   - `upload_to_server.py` a script to upload local files (generated maptiles) to GCS.  
-  - `static>`
-    - `capstone>`
+  - **`static>`**
+    - **`capstone>`**
       - `leaflet.js` Leaflet library for web mapping.  
       - `leaflet.css` Leaflet CSS file.  
       - `ee_api_js.js` GEE javascript API for web mapping (not used in this branch).  
       - `index.js` main javascript file for the application.  
       - `style.css` main css styling file for the application.  
-  - `templates>`
-    - `capstone>`
+  - **`templates>`**
+    - **`capstone>`**
       - `index.html` application main html file.  
       - `layout.html` html layout file.  
-- `final_project>`
+- **`final_project>`**
   - `settings.py` contains lines of code to handle `media` (external images and files) and django built in `message tags`.
-- `media>`
-  - `output_images` folder stores the output images generated during the analysis (initially empty).  
-  - `palette_color_text>` folder contains the files used to create color palletes for spectral indices.  
+- **`media>`**
+  - **`output_images`** folder stores the output images generated during the analysis (initially empty).  
+  - **`palette_color_text>`** folder contains the files used to create color palletes for spectral indices.  
     - `color_text_file_Blues.txt` customised color code for Blue color pallete.  
     - `color_text_file_bygor.txt` customised color code for Blue, Yellow, Green, Orange color pallete.  
     - `color_text_file_bygor2.txt` customised color code for Blue, Yellow, Green, Orange color pallete.  
@@ -46,25 +46,25 @@ Integrating all these different technologies is a challenging task bacause it re
     - `color_text_file_rgb.txt` customised color code for RGB color pallete.  
     - `color_text_file_Turbo.txt` customised color code for Turbo color pallete.  
     - `color_text_file_viridis.txt` customised color code for Viridis color pallete.  
-  - `shapefiles>` folder stores the uploaded shapefiles (initially empty).  
-  - `default_shapefiles>` folder contains a dummy shapefile that is loaded once the database is created.  
+  - **`shapefiles>`** folder stores the uploaded shapefiles (initially empty).  
+  - **`default_shapefiles>`** folder contains a dummy shapefile that is loaded once the database is created.  
     - `dummy_shapefile.shp` dummy shapefile to be loaded in the database.  
     - `dummy_shapefile.dbf` dummy shapefile dependency file to be loaded in the database.  
     - `dummy_shapefile.prj` dummy shapefile dependency to be loaded in the database.  
     - `dummy_shapefile.sbn` dummy shapefile dependency to be loaded in the database.  
     - `dummy_shapefile.sbx` dummy shapefile dependency to be loaded in the database.  
     - `dummy_shapefile.shx` dummy shapefile dependency to be loaded in the database.  
-- `test_data>` folder contains shapefiles of 3 different locations in the world to test the application.  
+- **`test_data>`** folder contains shapefiles of 3 different locations in the world to test the application.  
   - `Lobito` folder contains  shapefiles of Lobito area in Angola to test the application.  
   - `Patrice_Lumumba` folder contains  shapefiles of Patrice_Lumumba area in Angola to test the application.  
   - `Sapporo` folder contains  shapefiles of Sapporo area in Japan to test the application.  
-- `wheels>` folder contains the python wheels to setup on windows environment.  
+- **`wheels>`** folder contains the python wheels to setup on windows environment.  
   - `GDAL-3.4.2-cp37-cp37m-win_amd64.whl` python wheel for the GDAL library.  
   - `rasterio-1.2.10-cp37-cp37m-win_amd64.whl` python wheel for the rasterio library.  
-`.gitignore` contains a list of files and folders to be ignored when commiting to the repository.
-`authentication.json` contains GEE and GCS credentials to start the application and to upload data to cloud (make sure you add a `private_key.json` file to the repository main folder).
-`requirements.txt` contains a list of python libraries to be installed on windows environment.
-`requirements_mac.txt` contains a list of python libraries to be installed on mac environment.
+- `.gitignore` contains a list of files and folders to be ignored when commiting to the repository.  
+- `authentication.json` contains GEE and GCS credentials to start the application and to upload data to cloud (make sure you add a `private_key.json` file to the repository main folder).  
+- `requirements.txt` contains a list of python libraries to be installed on windows environment.  
+- `requirements_mac.txt` contains a list of python libraries to be installed on mac environment.
 
 ## requirements
 ### windows
@@ -104,7 +104,7 @@ gdal (`gdal2files`) is used to produce tiles stored in a `<maptiles_folder>` tha
 Generated maptiles for this project are hosted in google cloud storage, uploaded using the google-cloud-storage API (API different from earthengine-api, so, authentication process is different but uses the same private-key). After uploading a maptile we can have access to it as layer by using the public url `https://storage.googleapis.com/<bucket_name>/<folder_name>/{z}/{x}/{y}.png`.  
 **Note:** Make sure to make your bucket and its objects (folders, files) public and set `owner` permissions for `allUsers` from google cloud storage.
 
-## Usage [demo IoF50](https://youtu.be/H1e0TWnEqfQ)
+## Usage ([demo video](https://youtu.be/H1e0TWnEqfQ))
 ### Load area
 Global shapefiles (for area to be analised) can be downloaded from [Diva GIS](https://www.diva-gis.org/Data) at different levels and used as input.  
 Shapfiles should be uploaded with its corresponding `.dbf, .sbn, .shx, .sbx, .prj` dependencies files at once. Use the data from `test_data` folder to test this application.
